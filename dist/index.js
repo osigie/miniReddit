@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
 const core_1 = require("@mikro-orm/core");
 const mikro_orm_config_1 = __importDefault(require("./mikro-orm.config"));
-const Post_1 = require("./entities/Post");
 const express_1 = __importDefault(require("express"));
 const apollo_server_express_1 = require("apollo-server-express");
 const type_graphql_1 = require("type-graphql");
@@ -26,8 +25,6 @@ const initializer = () => __awaiter(void 0, void 0, void 0, function* () {
     const orm = yield core_1.MikroORM.init(mikro_orm_config_1.default);
     const em = orm.em.fork();
     yield orm.getMigrator().up();
-    const post = em.create(Post_1.Post, { title: "Hello" });
-    yield em.persistAndFlush(post);
     const apolloServer = new apollo_server_express_1.ApolloServer({
         schema: yield (0, type_graphql_1.buildSchema)({
             resolvers: [hello_1.HelloResolver, post_1.PostResolver],
