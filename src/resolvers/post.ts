@@ -27,7 +27,7 @@ export class PostResolver {
     @Arg("id") id: number,
     @Arg("title", () => String) title: string,
     @Ctx() { em }: MyContext
-  ): Promise<Post| null> {
+  ): Promise<Post | null> {
     const post = await em.findOne(Post, id);
     if (!post) {
       throw new Error("Post not found");
@@ -38,8 +38,12 @@ export class PostResolver {
     em.persistAndFlush(post);
     return post;
   }
-  //   @Query(() => String, { nullable: true })
-  //   deletePost(@Arg("id") id: number, @Ctx() { em }: MyContext): Promise<Post | null> {
-  //     return em.d(Post, id);
-  //   }
+  @Mutation(() => String, { nullable: true })
+  async deletePost(
+    @Arg("id") id: number,
+    @Ctx() { em }: MyContext
+  ): Promise<String | null> {
+    await em.nativeDelete(Post, id);
+    return "succesfully deleted";
+  }
 }
