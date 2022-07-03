@@ -65,15 +65,28 @@ export class UserResolver {
         ],
       };
     }
-
     const hashedPassword = await argon2.hash(details.password);
     const user = em.create(User, {
       username: details.username,
       password: hashedPassword,
     });
-    await em.persistAndFlush(user);
+    try {
+      await em.persistAndFlush(user);
+    } catch (error) {
+      if (error.code === "23505" || error.details.included("already exists")) {
+        return {
+          errors: [
+            {
+              field: "username",
+              message: "user already exists with that username",
+            },
+          ],
+        };
+      }
+    }
     return { user };
   }
+
   @Mutation(() => UserResponse)
   async login(
     @Arg("details") details: UserDetails,

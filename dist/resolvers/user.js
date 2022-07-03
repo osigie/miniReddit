@@ -95,7 +95,21 @@ let UserResolver = class UserResolver {
                 username: details.username,
                 password: hashedPassword,
             });
-            yield em.persistAndFlush(user);
+            try {
+                yield em.persistAndFlush(user);
+            }
+            catch (error) {
+                if (error.code === "23505" || error.details.included("already exists")) {
+                    return {
+                        errors: [
+                            {
+                                field: "username",
+                                message: "user already exists with that username",
+                            },
+                        ],
+                    };
+                }
+            }
             return { user };
         });
     }
