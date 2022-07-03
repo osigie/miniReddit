@@ -7,6 +7,7 @@ import {
   Field,
   InputType,
   Mutation,
+  ObjectType,
   Query,
   Resolver,
 } from "type-graphql";
@@ -20,6 +21,22 @@ class UserDetails {
   username: string;
 }
 
+@ObjectType()
+class FieldError {
+  @Field()
+  field: string;
+  @Field()
+  message: string;
+}
+
+@ObjectType()
+class UserResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
+  @Field(() => User, { nullable: true })
+  user?: User;
+}
+
 @Resolver()
 export class UserResolver {
   @Mutation(() => User)
@@ -27,18 +44,32 @@ export class UserResolver {
     @Arg("details") details: UserDetails,
     @Ctx() { em }: MyContext
   ) {
-    // try {
-    //     const hashedPassword = await argon2.hash(details.password);
-    // } catch (err) {
-    //   //...
-    // }
-
     const hashedPassword = await argon2.hash(details.password);
     const user = em.create(User, {
       username: details.username,
-      password: details.username,
+      password: hashedPassword,
     });
     await em.persistAndFlush(user);
     return user;
+  }
+  @Mutation(() => UserResponse)
+  async login(
+    @Arg("details") details: UserDetails,
+    @Ctx() { em }: MyContext
+  ): Promise<UserResponse> {
+    const user = await em.findOne(User, { username: details.username });
+    if (!user) {
+      return {
+        errors: [{ field: "username", message: "User not found" }],
+      };
+    }
+
+    const validPassword = await argon2.verify(user.password, details.password);
+    if (!validPassword) {
+      return {
+        errors: [{ field: "null", message: "Invalid credentials" }],
+      };
+    }
+    return { user };
   }
 }

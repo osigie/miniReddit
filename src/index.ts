@@ -16,6 +16,8 @@ const initializer = async () => {
   const orm = await MikroORM.init(microConfig);
   await orm.getMigrator().up();
   const em = orm.em.fork();
+
+  
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [HelloResolver, PostResolver, UserResolver],
