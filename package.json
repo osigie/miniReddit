@@ -6,7 +6,8 @@
   "scripts": {
     "watch": "tsc -watch",
     "start": "nodemon dist/index.js",
-    "migrations": "mikro-orm migration:create"
+    "migrations": "mikro-orm migration:create",
+    "update":"npx mikro-orm schema:update --run"
   },
   "repository": {
     "type": "git",

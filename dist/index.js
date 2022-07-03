@@ -24,8 +24,8 @@ const user_1 = require("./resolvers/user");
 const app = (0, express_1.default)();
 const initializer = () => __awaiter(void 0, void 0, void 0, function* () {
     const orm = yield core_1.MikroORM.init(mikro_orm_config_1.default);
-    const em = orm.em.fork();
     yield orm.getMigrator().up();
+    const em = orm.em.fork();
     const apolloServer = new apollo_server_express_1.ApolloServer({
         schema: yield (0, type_graphql_1.buildSchema)({
             resolvers: [hello_1.HelloResolver, post_1.PostResolver, user_1.UserResolver],

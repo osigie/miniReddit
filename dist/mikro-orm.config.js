@@ -11,6 +11,7 @@ exports.default = {
     migrations: {
         path: path_1.default.join(__dirname, "./migrations"),
         glob: "!(*.d).{js}",
+        tableName: "myschema.mikro_orm_migrations",
     },
     entities: [Post_1.Post, User_1.User],
     type: "postgresql",

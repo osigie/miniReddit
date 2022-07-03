@@ -27,10 +27,16 @@ export class UserResolver {
     @Arg("details") details: UserDetails,
     @Ctx() { em }: MyContext
   ) {
+    // try {
+    //     const hashedPassword = await argon2.hash(details.password);
+    // } catch (err) {
+    //   //...
+    // }
+
     const hashedPassword = await argon2.hash(details.password);
     const user = em.create(User, {
       username: details.username,
-      password: hashedPassword,
+      password: details.username,
     });
     await em.persistAndFlush(user);
     return user;

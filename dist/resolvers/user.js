@@ -47,7 +47,7 @@ let UserResolver = class UserResolver {
             const hashedPassword = yield argon2_1.default.hash(details.password);
             const user = em.create(User_1.User, {
                 username: details.username,
-                password: hashedPassword,
+                password: details.username,
             });
             yield em.persistAndFlush(user);
             return user;

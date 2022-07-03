@@ -1,4 +1,3 @@
-
 import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
 import { Field, ObjectType } from "type-graphql";
 
@@ -20,7 +19,7 @@ export class User {
   @Field()
   @Property({ type: "text", unique: true })
   username!: string;
- 
+
   @Property({ type: "text" })
   password!: string;
 }
