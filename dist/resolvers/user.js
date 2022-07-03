@@ -70,13 +70,33 @@ UserResponse = __decorate([
 let UserResolver = class UserResolver {
     register(details, { em }) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (details.username.length < 3) {
+                return {
+                    errors: [
+                        {
+                            field: "username",
+                            message: "username must be at least 3 characters",
+                        },
+                    ],
+                };
+            }
+            if (details.password.length < 5) {
+                return {
+                    errors: [
+                        {
+                            field: "password",
+                            message: "password must be at least 5 characters",
+                        },
+                    ],
+                };
+            }
             const hashedPassword = yield argon2_1.default.hash(details.password);
             const user = em.create(User_1.User, {
                 username: details.username,
                 password: hashedPassword,
             });
             yield em.persistAndFlush(user);
-            return user;
+            return { user };
         });
     }
     login(details, { em }) {
@@ -98,7 +118,7 @@ let UserResolver = class UserResolver {
     }
 };
 __decorate([
-    (0, type_graphql_1.Mutation)(() => User_1.User),
+    (0, type_graphql_1.Mutation)(() => UserResponse),
     __param(0, (0, type_graphql_1.Arg)("details")),
     __param(1, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),

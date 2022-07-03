@@ -39,18 +39,40 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
-  @Mutation(() => User)
+  @Mutation(() => UserResponse)
   async register(
     @Arg("details") details: UserDetails,
     @Ctx() { em }: MyContext
-  ) {
+  ): Promise<UserResponse> {
+    if (details.username.length < 3) {
+      return {
+        errors: [
+          {
+            field: "username",
+            message: "username must be at least 3 characters",
+          },
+        ],
+      };
+    }
+
+    if (details.password.length < 5) {
+      return {
+        errors: [
+          {
+            field: "password",
+            message: "password must be at least 5 characters",
+          },
+        ],
+      };
+    }
+
     const hashedPassword = await argon2.hash(details.password);
     const user = em.create(User, {
       username: details.username,
       password: hashedPassword,
     });
     await em.persistAndFlush(user);
-    return user;
+    return { user };
   }
   @Mutation(() => UserResponse)
   async login(
