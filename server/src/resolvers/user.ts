@@ -42,7 +42,7 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async register(
     @Arg("details") details: UserDetails,
-    @Ctx() { em }: MyContext
+    @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
     if (details.username.length < 3) {
       return {
@@ -84,6 +84,8 @@ export class UserResolver {
         };
       }
     }
+    req.session.userId = user._id;
+
     return { user };
   }
 
@@ -105,10 +107,16 @@ export class UserResolver {
         errors: [{ field: "null", message: "Invalid credentials" }],
       };
     }
-    // console.log(user._id)
-    // //@ts-ignore
     req.session.userId = user._id;
 
     return { user };
+  }
+  @Query(() => User, { nullable: true })
+  async me(@Ctx() { em, req }: MyContext): Promise<User | null> {
+    if (!req.session.userId) {
+      return null;
+    }
+    const user = await em.findOne(User, { _id: req.session.userId });
+    return user;
   }
 }

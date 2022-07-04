@@ -68,7 +68,7 @@ UserResponse = __decorate([
     (0, type_graphql_1.ObjectType)()
 ], UserResponse);
 let UserResolver = class UserResolver {
-    register(details, { em }) {
+    register(details, { em, req }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (details.username.length < 3) {
                 return {
@@ -110,6 +110,7 @@ let UserResolver = class UserResolver {
                     };
                 }
             }
+            req.session.userId = user._id;
             return { user };
         });
     }
@@ -131,6 +132,15 @@ let UserResolver = class UserResolver {
             return { user };
         });
     }
+    me({ em, req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!req.session.userId) {
+                return null;
+            }
+            const user = yield em.findOne(User_1.User, { _id: req.session.userId });
+            return user;
+        });
+    }
 };
 __decorate([
     (0, type_graphql_1.Mutation)(() => UserResponse),
@@ -148,6 +158,13 @@ __decorate([
     __metadata("design:paramtypes", [UserDetails, Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "login", null);
+__decorate([
+    (0, type_graphql_1.Query)(() => User_1.User, { nullable: true }),
+    __param(0, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "me", null);
 UserResolver = __decorate([
     (0, type_graphql_1.Resolver)()
 ], UserResolver);
