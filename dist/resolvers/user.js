@@ -113,7 +113,7 @@ let UserResolver = class UserResolver {
             return { user };
         });
     }
-    login(details, { em }) {
+    login(details, { em, req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield em.findOne(User_1.User, { username: details.username });
             if (!user) {
@@ -127,6 +127,7 @@ let UserResolver = class UserResolver {
                     errors: [{ field: "null", message: "Invalid credentials" }],
                 };
             }
+            req.session.userId = user._id;
             return { user };
         });
     }

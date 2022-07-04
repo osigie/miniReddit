@@ -90,7 +90,7 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async login(
     @Arg("details") details: UserDetails,
-    @Ctx() { em }: MyContext
+    @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
     const user = await em.findOne(User, { username: details.username });
     if (!user) {
@@ -105,6 +105,10 @@ export class UserResolver {
         errors: [{ field: "null", message: "Invalid credentials" }],
       };
     }
+    // console.log(user._id)
+    // //@ts-ignore
+    req.session.userId = user._id;
+
     return { user };
   }
 }
