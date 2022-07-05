@@ -37,6 +37,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
 const core_1 = require("@mikro-orm/core");
+const constants_1 = require("./constants");
 const mikro_orm_config_1 = __importDefault(require("./mikro-orm.config"));
 const express_1 = __importDefault(require("express"));
 const apollo_server_express_1 = require("apollo-server-express");
@@ -58,7 +59,7 @@ const initializer = () => __awaiter(void 0, void 0, void 0, function* () {
     redisClient.connect().catch(console.error);
     app.set("trust proxy", process.env.NODE_ENV !== "production");
     app.use((0, cors_1.default)({
-        origin: "https://studio.apollographql.com",
+        origin: ["https://studio.apollographql.com", "http://localhost:3000"],
         credentials: true,
     }));
     app.use((0, express_session_1.default)({
@@ -67,8 +68,8 @@ const initializer = () => __awaiter(void 0, void 0, void 0, function* () {
         cookie: {
             maxAge: 1000 * 60 * 60 * 24 * 5,
             httpOnly: true,
-            secure: true,
-            sameSite: "none",
+            secure: constants_1.__prod__,
+            sameSite: "lax",
         },
         saveUninitialized: false,
         secret: "kjsxfksjifhisufhsjkdhfsdhfioshf",

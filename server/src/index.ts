@@ -29,10 +29,10 @@ const initializer = async () => {
   app.set("trust proxy", process.env.NODE_ENV !== "production");
   app.use(
     cors({
-      origin: "https://studio.apollographql.com",
+      origin: ["https://studio.apollographql.com", "http://localhost:3000"],
       credentials: true,
     })
-  )
+  );
 
   app.use(
     session({
@@ -41,9 +41,8 @@ const initializer = async () => {
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 5, //5 years
         httpOnly: true,
-        secure: true, //only in production
-        sameSite: "none", //csrf
-        
+        secure: __prod__, //only in production
+        sameSite: "lax", //csrf
       },
       saveUninitialized: false,
       secret: "kjsxfksjifhisufhsjkdhfsdhfioshf",
