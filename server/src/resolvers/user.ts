@@ -12,6 +12,7 @@ import {
   Resolver,
 } from "type-graphql";
 import { User } from "../entities/User";
+import { EntityManager } from "@mikro-orm/postgresql";
 
 @InputType()
 class UserDetails {
@@ -70,7 +71,19 @@ export class UserResolver {
       username: details.username,
       password: hashedPassword,
     });
+    // let user;
     try {
+      // const result = await (em as EntityManager)
+      //   .createQueryBuilder(User)
+      //   .getKnexQuery()
+      //   .insert({
+      //     username: details.username,
+      //     password: hashedPassword,
+      //     created_at: new Date(),
+      //     updated_at: new Date(),
+      //   })
+      //   .returning("*");
+      // user = result[0];
       await em.persistAndFlush(user);
     } catch (error) {
       if (error.code === "23505" || error.details.included("already exists")) {
@@ -104,7 +117,7 @@ export class UserResolver {
     const validPassword = await argon2.verify(user.password, details.password);
     if (!validPassword) {
       return {
-        errors: [{ field: "null", message: "Invalid credentials" }],
+        errors: [{ field: "username", message: "Invalid credentials" }],
       };
     }
     req.session.userId = user._id;

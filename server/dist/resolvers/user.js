@@ -125,7 +125,7 @@ let UserResolver = class UserResolver {
             const validPassword = yield argon2_1.default.verify(user.password, details.password);
             if (!validPassword) {
                 return {
-                    errors: [{ field: "null", message: "Invalid credentials" }],
+                    errors: [{ field: "username", message: "Invalid credentials" }],
                 };
             }
             req.session.userId = user._id;
