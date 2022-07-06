@@ -12,9 +12,11 @@ import {
 } from "type-graphql";
 import { User } from "../entities/User";
 import { EntityManager } from "@mikro-orm/postgresql";
-import { COOKIE_NAME } from "../constants";
+import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constants";
 import { UserDetails } from "../types/UserDetails";
 import { validateRegister } from "../utils/validateRegister";
+import { v4 } from "uuid";
+import sendEmails from "../utils/sendMails";
 
 @ObjectType()
 class FieldError {
@@ -129,5 +131,25 @@ export class UserResolver {
         resolve(true);
       });
     });
+  }
+  @Mutation(() => Boolean)
+  async forgotPassword(
+    @Ctx() { em, redis }: MyContext,
+    @Arg("email") email: string
+  ) {
+    const user = await em.findOne(User, { email: email });
+    if (!user) {
+      return false;
+    } else {
+      const token = v4();
+      await redis.set(FORGET_PASSWORD_PREFIX + token, user._id);
+      await redis.expire(token, 1000 * 60 * 60 * 24 * 3);
+      // await redis.set(FORGET_PASSWORD_PREFIX + token, user._id, "ex", 1000 * 60 * 60 * 24 * 2)
+      await sendEmails(
+        email,
+        `<a href="http://localhost:3000/change-password/${token}">Reset Password</a>`
+      );
+      return true;
+    }
   }
 }

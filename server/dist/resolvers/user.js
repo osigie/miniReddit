@@ -31,6 +31,8 @@ const User_1 = require("../entities/User");
 const constants_1 = require("../constants");
 const UserDetails_1 = require("../types/UserDetails");
 const validateRegister_1 = require("../utils/validateRegister");
+const uuid_1 = require("uuid");
+const sendMails_1 = __importDefault(require("../utils/sendMails"));
 let FieldError = class FieldError {
 };
 __decorate([
@@ -130,6 +132,21 @@ let UserResolver = class UserResolver {
             });
         });
     }
+    forgotPassword({ em, redis }, email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield em.findOne(User_1.User, { email: email });
+            if (!user) {
+                return false;
+            }
+            else {
+                const token = (0, uuid_1.v4)();
+                yield redis.set(constants_1.FORGET_PASSWORD_PREFIX + token, user._id);
+                yield redis.expire(token, 1000 * 60 * 60 * 24 * 3);
+                yield (0, sendMails_1.default)(email, `<a href="http://localhost:3000/change-password/${token}">Reset Password</a>`);
+                return true;
+            }
+        });
+    }
 };
 __decorate([
     (0, type_graphql_1.Mutation)(() => UserResponse),
@@ -162,6 +179,14 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], UserResolver.prototype, "logout", null);
+__decorate([
+    (0, type_graphql_1.Mutation)(() => Boolean),
+    __param(0, (0, type_graphql_1.Ctx)()),
+    __param(1, (0, type_graphql_1.Arg)("email")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "forgotPassword", null);
 UserResolver = __decorate([
     (0, type_graphql_1.Resolver)()
 ], UserResolver);

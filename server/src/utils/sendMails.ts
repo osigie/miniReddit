@@ -23,8 +23,8 @@ console.log(testAccount)
     from: '"Fred Foo 👻" <foo@example.com>', // sender address
     to:to,
     subject: "Recover password", // Subject line
-    text: body, // plain text body
-    // html: "<b>Hello world?</b>", // html body
+    // text: body, // plain text body
+    html: body, // html body
   });
 
   console.log("Message sent: %s", info.messageId);

@@ -15,6 +15,7 @@ import { MyContext } from "./types/types";
 import cors from "cors";
 import sendMail from "./utils/sendMails";
 import { User } from "./entities/User";
+import Redis from "ioredis"
  
 
 // {
@@ -37,8 +38,9 @@ const initializer = async () => {
 
   // redis@v4
   const RedisStore = connectRedis(session);
-  const redisClient = redis.createClient({ legacyMode: true });
-  redisClient.connect().catch(console.error);
+  // const redisClient = redis.createClient({ legacyMode: true });
+  // redisClient.connect().catch(console.error);
+  const redis = new Redis()
 
   app.set("trust proxy", process.env.NODE_ENV !== "production");
   app.use(
@@ -51,7 +53,7 @@ const initializer = async () => {
   app.use(
     session({
       name: COOKIE_NAME,
-      store: new RedisStore({ client: redisClient, disableTouch: false }),
+      store: new RedisStore({ client: redis, disableTouch: false }),
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 5, //5 years
         httpOnly: true,
@@ -70,7 +72,7 @@ const initializer = async () => {
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }): MyContext => ({ em: em, req, res }),
+    context: ({ req, res }): MyContext => ({ em: em, req, res, redis }),
   });
 
   await apolloServer.start();

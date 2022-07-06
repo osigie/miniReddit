@@ -30,7 +30,7 @@ function sendMail(to, body) {
             from: '"Fred Foo 👻" <foo@example.com>',
             to: to,
             subject: "Recover password",
-            text: body,
+            html: body,
         });
         console.log("Message sent: %s", info.messageId);
         console.log("Preview URL: %s", nodemailer_1.default.getTestMessageUrl(info));
