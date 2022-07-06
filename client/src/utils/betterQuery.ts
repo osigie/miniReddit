@@ -4,7 +4,7 @@ export function betterQuery<Result, Query>(
   cache: Cache,
   queryInput: QueryInput,
   result: any,
-  fn: (r: Result, q: Query) => Query
+  fn: (r: Result, q: Query) => Query | undefined
 ) {
   return cache.updateQuery(
     queryInput,

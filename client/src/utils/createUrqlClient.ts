@@ -67,6 +67,4 @@ export const createUrqlClient = (ssrExchange: any) => ({
     ssrExchange,
     fetchExchange,
   ],
-})
-
-
+});

@@ -24,9 +24,9 @@ export default function Register({}: Props) {
       onSubmit={async (values, { setErrors }) => {
         const response = await register({ details: values });
         console.log(response);
-        if (response.data.register.errors) {
-          setErrors(errorConverter(response.data.register.errors));
-        } else if (response.data.register.user) {
+        if (response.data?.register.errors) {
+          setErrors(errorConverter(response.data?.register.errors));
+        } else if (response.data?.register.user) {
           // login
           router.push("/");
         }

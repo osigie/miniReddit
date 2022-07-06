@@ -16,9 +16,9 @@ export default function Login({}: Props) {
       initialValues={{ username: "", password: "" }}
       onSubmit={async (values, { setErrors }) => {
         const response = await login({ details: values });
-        if (response.data.login.errors) {
+        if (response.data?.login.errors) {
           setErrors(errorConverter(response.data.login.errors));
-        } else if (response.data.login.user) {
+        } else if (response.data?.login.user) {
           // login
           router.push("/");
         }
