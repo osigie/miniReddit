@@ -143,8 +143,7 @@ export class UserResolver {
     } else {
       const token = v4();
       await redis.set(FORGET_PASSWORD_PREFIX + token, user._id);
-      await redis.expire(token, 1000 * 60 * 60 * 24 * 3);
-      // await redis.set(FORGET_PASSWORD_PREFIX + token, user._id, "ex", 1000 * 60 * 60 * 24 * 2)
+      await redis.expire(token, 1000 * 60 * 60 * 24 * 3) // 2 days
       await sendEmails(
         email,
         `<a href="http://localhost:3000/change-password/${token}">Reset Password</a>`
