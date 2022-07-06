@@ -92,11 +92,11 @@ let UserResolver = class UserResolver {
     login(usernameOrEmail, password, { em, req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield em.findOne(User_1.User, usernameOrEmail.includes("@")
-                ? { username: usernameOrEmail }
-                : { email: usernameOrEmail });
+                ? { email: usernameOrEmail }
+                : { username: usernameOrEmail });
             if (!user) {
                 return {
-                    errors: [{ field: "username", message: "User not found" }],
+                    errors: [{ field: "usernameOrEmail", message: "User not found" }],
                 };
             }
             const validPassword = yield argon2_1.default.verify(user.password, password);

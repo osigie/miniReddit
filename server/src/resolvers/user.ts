@@ -89,12 +89,12 @@ export class UserResolver {
     const user = await em.findOne(
       User,
       usernameOrEmail.includes("@")
-        ? { username: usernameOrEmail }
-        : { email: usernameOrEmail }
+        ? { email: usernameOrEmail }
+        : { username: usernameOrEmail }
     );
     if (!user) {
       return {
-        errors: [{ field: "username", message: "User not found" }],
+        errors: [{ field: "usernameOrEmail", message: "User not found" }],
       };
     }
 

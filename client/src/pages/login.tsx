@@ -14,9 +14,12 @@ function Login({}: Props) {
   const [, login] = useLoginMutation();
   return (
     <Formik
-      initialValues={{ username: "", password: "" }}
+      initialValues={{ usernameOrEmail: "", password: "" }}
       onSubmit={async (values, { setErrors }) => {
-        const response = await login({ details: values });
+        const response = await login({
+          password: values.password,
+          usernameOrEmail: values.usernameOrEmail,
+        });
         if (response.data?.login.errors) {
           setErrors(errorConverter(response.data.login.errors));
         } else if (response.data?.login.user) {
@@ -29,9 +32,9 @@ function Login({}: Props) {
         <Wrapper varaint={"small"}>
           <Form>
             <InputField
-              name="username"
-              label="Username"
-              placeholder="username"
+              name="usernameOrEmail"
+              label="Username or email"
+              placeholder="username Or Email"
               type="text"
             />
 
@@ -57,6 +60,5 @@ function Login({}: Props) {
     </Formik>
   );
 }
-
 
 export default withUrqlClient(createUrqlClient)(Login);

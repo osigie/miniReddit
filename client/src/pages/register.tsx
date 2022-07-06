@@ -15,7 +15,7 @@ function Register({}: Props) {
   const [, register] = useRegisterMutation();
   return (
     <Formik
-      initialValues={{ username: "", password: "" }}
+      initialValues={{ username: "", password: "", email:"" }}
       onSubmit={async (values, { setErrors }) => {
         const response = await register({ details: values });
         console.log(response);
@@ -36,6 +36,15 @@ function Register({}: Props) {
               placeholder="username"
               type="text"
             />
+
+            <Box mt={8}>
+              <InputField
+                name="email"
+                label="Email"
+                placeholder="email"
+                type="email"
+              />
+            </Box>
 
             <Box mt={8}>
               <InputField
