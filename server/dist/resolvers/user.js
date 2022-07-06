@@ -29,19 +29,8 @@ const argon2_1 = __importDefault(require("argon2"));
 const type_graphql_1 = require("type-graphql");
 const User_1 = require("../entities/User");
 const constants_1 = require("../constants");
-let UserDetails = class UserDetails {
-};
-__decorate([
-    (0, type_graphql_1.Field)(),
-    __metadata("design:type", String)
-], UserDetails.prototype, "password", void 0);
-__decorate([
-    (0, type_graphql_1.Field)(),
-    __metadata("design:type", String)
-], UserDetails.prototype, "username", void 0);
-UserDetails = __decorate([
-    (0, type_graphql_1.InputType)()
-], UserDetails);
+const UserDetails_1 = require("../types/UserDetails");
+const validateRegister_1 = require("../utils/validateRegister");
 let FieldError = class FieldError {
 };
 __decorate([
@@ -71,30 +60,15 @@ UserResponse = __decorate([
 let UserResolver = class UserResolver {
     register(details, { em, req }) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (details.username.length < 3) {
-                return {
-                    errors: [
-                        {
-                            field: "username",
-                            message: "username must be at least 3 characters",
-                        },
-                    ],
-                };
-            }
-            if (details.password.length < 5) {
-                return {
-                    errors: [
-                        {
-                            field: "password",
-                            message: "password must be at least 5 characters",
-                        },
-                    ],
-                };
+            const errors = (0, validateRegister_1.validateRegister)(details);
+            if (errors) {
+                return { errors };
             }
             const hashedPassword = yield argon2_1.default.hash(details.password);
             const user = em.create(User_1.User, {
                 username: details.username,
                 password: hashedPassword,
+                email: details.email,
             });
             try {
                 yield em.persistAndFlush(user);
@@ -115,15 +89,17 @@ let UserResolver = class UserResolver {
             return { user };
         });
     }
-    login(details, { em, req }) {
+    login(usernameOrEmail, password, { em, req }) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield em.findOne(User_1.User, { username: details.username });
+            const user = yield em.findOne(User_1.User, usernameOrEmail.includes("@")
+                ? { username: usernameOrEmail }
+                : { email: usernameOrEmail });
             if (!user) {
                 return {
                     errors: [{ field: "username", message: "User not found" }],
                 };
             }
-            const validPassword = yield argon2_1.default.verify(user.password, details.password);
+            const validPassword = yield argon2_1.default.verify(user.password, password);
             if (!validPassword) {
                 return {
                     errors: [{ field: "username", message: "Invalid credentials" }],
@@ -160,15 +136,16 @@ __decorate([
     __param(0, (0, type_graphql_1.Arg)("details")),
     __param(1, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [UserDetails, Object]),
+    __metadata("design:paramtypes", [UserDetails_1.UserDetails, Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "register", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => UserResponse),
-    __param(0, (0, type_graphql_1.Arg)("details")),
-    __param(1, (0, type_graphql_1.Ctx)()),
+    __param(0, (0, type_graphql_1.Arg)("usernameOrEmail")),
+    __param(1, (0, type_graphql_1.Arg)("password")),
+    __param(2, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [UserDetails, Object]),
+    __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "login", null);
 __decorate([

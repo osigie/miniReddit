@@ -1,3 +1,4 @@
+
 mutation Register($details: UserDetails!) {
   register(details: $details) {
     errors {
@@ -5,7 +6,7 @@ mutation Register($details: UserDetails!) {
       message
     }
     user {
-     ...NormalUser
+      ...NormalUser
     }
   }
 }

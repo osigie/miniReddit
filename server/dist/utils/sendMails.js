@@ -8,11 +8,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const nodemailer = require("nodemailer");
-function main() {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const nodemailer_1 = __importDefault(require("nodemailer"));
+function sendMail(to, body) {
     return __awaiter(this, void 0, void 0, function* () {
-        let testAccount = yield nodemailer.createTestAccount();
-        let transporter = nodemailer.createTransport({
+        let testAccount = yield nodemailer_1.default.createTestAccount();
+        console.log(testAccount);
+        let transporter = nodemailer_1.default.createTransport({
             host: "smtp.ethereal.email",
             port: 587,
             secure: false,
@@ -23,14 +28,13 @@ function main() {
         });
         let info = yield transporter.sendMail({
             from: '"Fred Foo 👻" <foo@example.com>',
-            to: "bar@example.com, baz@example.com",
-            subject: "Hello ✔",
-            text: "Hello world?",
-            html: "<b>Hello world?</b>",
+            to: to,
+            subject: "Recover password",
+            text: body,
         });
         console.log("Message sent: %s", info.messageId);
-        console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+        console.log("Preview URL: %s", nodemailer_1.default.getTestMessageUrl(info));
     });
 }
-main().catch(console.error);
+exports.default = sendMail;
 //# sourceMappingURL=sendMails.js.map

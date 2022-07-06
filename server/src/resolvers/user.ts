@@ -1,11 +1,10 @@
 import { Post } from "../entities/Post";
-import { MyContext } from "src/types";
+import { MyContext } from "src/types/types";
 import argon2, { hash } from "argon2";
 import {
   Arg,
   Ctx,
   Field,
-  InputType,
   Mutation,
   ObjectType,
   Query,
@@ -14,14 +13,8 @@ import {
 import { User } from "../entities/User";
 import { EntityManager } from "@mikro-orm/postgresql";
 import { COOKIE_NAME } from "../constants";
-
-@InputType()
-class UserDetails {
-  @Field()
-  password: string;
-  @Field()
-  username: string;
-}
+import { UserDetails } from "../types/UserDetails";
+import { validateRegister } from "../utils/validateRegister";
 
 @ObjectType()
 class FieldError {
@@ -46,31 +39,15 @@ export class UserResolver {
     @Arg("details") details: UserDetails,
     @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
-    if (details.username.length < 3) {
-      return {
-        errors: [
-          {
-            field: "username",
-            message: "username must be at least 3 characters",
-          },
-        ],
-      };
-    }
-
-    if (details.password.length < 5) {
-      return {
-        errors: [
-          {
-            field: "password",
-            message: "password must be at least 5 characters",
-          },
-        ],
-      };
+    const errors = validateRegister(details);
+    if (errors) {
+      return { errors };
     }
     const hashedPassword = await argon2.hash(details.password);
     const user = em.create(User, {
       username: details.username,
       password: hashedPassword,
+      email: details.email,
     });
     // let user;
     try {
@@ -105,17 +82,23 @@ export class UserResolver {
 
   @Mutation(() => UserResponse)
   async login(
-    @Arg("details") details: UserDetails,
+    @Arg("usernameOrEmail") usernameOrEmail: string,
+    @Arg("password") password: string,
     @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
-    const user = await em.findOne(User, { username: details.username });
+    const user = await em.findOne(
+      User,
+      usernameOrEmail.includes("@")
+        ? { username: usernameOrEmail }
+        : { email: usernameOrEmail }
+    );
     if (!user) {
       return {
         errors: [{ field: "username", message: "User not found" }],
       };
     }
 
-    const validPassword = await argon2.verify(user.password, details.password);
+    const validPassword = await argon2.verify(user.password, password);
     if (!validPassword) {
       return {
         errors: [{ field: "username", message: "Invalid credentials" }],

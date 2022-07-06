@@ -11,12 +11,26 @@ import { UserResolver } from "./resolvers/user";
 import * as redis from "redis";
 import session from "express-session";
 import connectRedis from "connect-redis";
-import { MyContext } from "./types";
+import { MyContext } from "./types/types";
 import cors from "cors";
+import sendMail from "./utils/sendMails";
+import { User } from "./entities/User";
+ 
+
+// {
+//   user: 'z5rqk3njhnddmnk5@ethereal.email',
+//   pass: 'RWkTmH7qYcwGCXs7uk',
+//   smtp: { host: 'smtp.ethereal.email', port: 587, secure: false },
+//   imap: { host: 'imap.ethereal.email', port: 993, secure: true },
+//   pop3: { host: 'pop3.ethereal.email', port: 995, secure: true },
+//   web: 'https://ethereal.email'
+// }
 
 const app = express();
 
 const initializer = async () => {
+  // sendMail("kenosagie88@gmail.com", "this is a test")
+
   const orm = await MikroORM.init(microConfig);
   await orm.getMigrator().up();
   const em = orm.em.fork();

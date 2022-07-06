@@ -1,11 +1,13 @@
-mutation Login($details: UserDetails!) {
-  login(details: $details) {
+
+
+mutation Login($password: String!, $usernameOrEmail: String!) {
+  login(password: $password, usernameOrEmail: $usernameOrEmail) {
     errors {
       field
       message
     }
     user {
-    ...NormalUser
+ ...NormalUser
     }
   }
 }
