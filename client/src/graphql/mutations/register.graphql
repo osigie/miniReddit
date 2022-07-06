@@ -1,0 +1,11 @@
+mutation Register($details: UserDetails!) {
+  register(details: $details) {
+    errors {
+      field
+      message
+    }
+    user {
+     ...NormalUser
+    }
+  }
+}
