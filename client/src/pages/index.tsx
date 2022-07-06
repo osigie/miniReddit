@@ -8,11 +8,15 @@ const Index = () => {
   return (
     <>
       <Navbar />
-      {!data
-        ? null
-        : data.posts.map((each, i) => <div key={i}>{each.title}</div>)}
+      {!data ? (
+        <div>Loading....</div>
+      ) : (
+        data.posts.map((each, i) => {
+          return <div key={i}>{each.title}</div>;
+        })
+      )}
       <div>index</div>
     </>
   );
 };
-export default withUrqlClient(createUrqlClient)(Index);
+export default withUrqlClient(createUrqlClient, { ssr: true })(Index);

@@ -1,21 +1,16 @@
 import React from "react";
 import { Form, Formik } from "formik";
-import {
-  FormControl,
-  FormLabel,
-  Input,
-  FormErrorMessage,
-  Box,
-  Button,
-} from "@chakra-ui/react";
+import { Box, Button } from "@chakra-ui/react";
 import Wrapper from "../components/Wrapper";
 import InputField from "../components/InputField";
 import { useRegisterMutation } from "../generated/graphql";
 import { errorConverter } from "../utils/errorConverter";
 import { useRouter } from "next/router";
+import { withUrqlClient } from "next-urql";
+import { createUrqlClient } from "../utils/createUrqlClient";
 type Props = {};
 
-export default function Register({}: Props) {
+function Register({}: Props) {
   const router = useRouter();
   const [, register] = useRegisterMutation();
   return (
@@ -64,3 +59,5 @@ export default function Register({}: Props) {
     </Formik>
   );
 }
+
+export default withUrqlClient(createUrqlClient)(Register);
