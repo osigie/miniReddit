@@ -104,7 +104,7 @@ let UserResolver = class UserResolver {
             const validPassword = yield argon2_1.default.verify(user.password, password);
             if (!validPassword) {
                 return {
-                    errors: [{ field: "username", message: "Invalid credentials" }],
+                    errors: [{ field: "usernameOrEmail", message: "Invalid credentials" }],
                 };
             }
             req.session.userId = user._id;
@@ -147,6 +147,38 @@ let UserResolver = class UserResolver {
             }
         });
     }
+    newPassword(newPassword, token, { em, req, redis }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (newPassword.length < 5) {
+                return {
+                    errors: [
+                        {
+                            field: "newPassword",
+                            message: "Password must be at least 5 characters long",
+                        },
+                    ],
+                };
+            }
+            const userId = yield redis.get(constants_1.FORGET_PASSWORD_PREFIX + token);
+            if (!userId) {
+                return {
+                    errors: [{ field: "token", message: "token expired" }],
+                };
+            }
+            const user = yield em.findOne(User_1.User, { _id: Number(userId) });
+            if (!user) {
+                return {
+                    errors: [{ field: "token", message: "user no longer exists" }],
+                };
+            }
+            const hashedPassword = yield argon2_1.default.hash(newPassword);
+            user.password = hashedPassword;
+            yield em.persistAndFlush(user);
+            yield redis.del(constants_1.FORGET_PASSWORD_PREFIX + token);
+            req.session.userId = user._id;
+            return { user };
+        });
+    }
 };
 __decorate([
     (0, type_graphql_1.Mutation)(() => UserResponse),
@@ -187,6 +219,15 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "forgotPassword", null);
+__decorate([
+    (0, type_graphql_1.Mutation)(() => UserResponse),
+    __param(0, (0, type_graphql_1.Arg)("newPassword")),
+    __param(1, (0, type_graphql_1.Arg)("token")),
+    __param(2, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "newPassword", null);
 UserResolver = __decorate([
     (0, type_graphql_1.Resolver)()
 ], UserResolver);

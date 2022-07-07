@@ -103,7 +103,7 @@ export class UserResolver {
     const validPassword = await argon2.verify(user.password, password);
     if (!validPassword) {
       return {
-        errors: [{ field: "username", message: "Invalid credentials" }],
+        errors: [{ field: "usernameOrEmail", message: "Invalid credentials" }],
       };
     }
     req.session.userId = user._id;
@@ -150,5 +150,46 @@ export class UserResolver {
       );
       return true;
     }
+  }
+
+  @Mutation(() => UserResponse)
+  async newPassword(
+    @Arg("newPassword") newPassword: string,
+    @Arg("token") token: string,
+    @Ctx() { em, req, redis }: MyContext
+  ): Promise<UserResponse> {
+    if (newPassword.length < 5) {
+      return {
+        errors: [
+          {
+            field: "newPassword",
+            message: "Password must be at least 5 characters long",
+          },
+        ],
+      };
+    }
+
+    const userId = await redis.get(FORGET_PASSWORD_PREFIX + token);
+    if (!userId) {
+      return {
+        errors: [{ field: "token", message: "token expired" }],
+      };
+    }
+    const user = await em.findOne(User, { _id: Number(userId) });
+    if (!user) {
+      return {
+        errors: [{ field: "token", message: "user no longer exists" }],
+      };
+    }
+
+    const hashedPassword = await argon2.hash(newPassword);
+    user.password = hashedPassword;
+    await em.persistAndFlush(user);
+    //delete the change password token
+    await redis.del(FORGET_PASSWORD_PREFIX + token);
+    req.session.userId = user._id;
+    //login the user after password has been changed
+
+    return { user };
   }
 }

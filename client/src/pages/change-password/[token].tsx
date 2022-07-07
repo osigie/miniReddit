@@ -1,33 +1,43 @@
-import { Button } from "@chakra-ui/react";
+import { Box, Button, Flex, Link } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
-import { Box } from "framer-motion";
 import { NextPage } from "next";
 import router from "next/router";
-import React from "react";
+import React, { useState } from "react";
 import InputField from "../../components/InputField";
 import Wrapper from "../../components/Wrapper";
+import { useNewPasswordMutation } from "../../generated/graphql";
 import { errorConverter } from "../../utils/errorConverter";
-import login from "../login";
+import { useRouter } from "next/router";
+import { withUrqlClient } from "next-urql";
+import { createUrqlClient } from "../../utils/createUrqlClient";
+import NextLink from "next/link";
 
 type Props = {
   token: string;
 };
 
 const changePassword: NextPage<{ token: string }> = ({ token }: Props) => {
+  const [state, setState] = useState("");
+  const router = useRouter();
+  const [, changePassword] = useNewPasswordMutation();
   return (
     <Formik
       initialValues={{ newPassword: "" }}
       onSubmit={async (values, { setErrors }) => {
-        // const response = await login({
-        //   password: values.password,
-        //   usernameOrEmail: values.usernameOrEmail,
-        // });
-        // if (response.data?.login.errors) {
-        //   setErrors(errorConverter(response.data.login.errors));
-        // } else if (response.data?.login.user) {
-        //   // login
-        //   router.push("/");
-        // }
+        const response = await changePassword({
+          token,
+          newPassword: values.newPassword,
+        });
+        if (response.data?.newPassword.errors) {
+          const error = errorConverter(response.data?.newPassword.errors);
+          if ("token" in error) {
+            setState(error.token);
+          }
+          setErrors(error);
+        } else if (response.data?.newPassword.user) {
+          // login
+          router.push("/");
+        }
       }}
     >
       {({ isSubmitting }) => (
@@ -39,6 +49,14 @@ const changePassword: NextPage<{ token: string }> = ({ token }: Props) => {
               placeholder="new password"
               type="password"
             />
+            {state && (
+              <Flex>
+                <Box color="red" mr={2}>{state}</Box>
+                <NextLink href="/forgot-password">
+                  <Link>click here to get a new one</Link>
+                </NextLink>
+              </Flex>
+            )}
 
             <Button
               type="submit"
@@ -46,7 +64,7 @@ const changePassword: NextPage<{ token: string }> = ({ token }: Props) => {
               colorScheme="teal"
               mt={4}
             >
-              submit
+              change password
             </Button>
           </Form>
         </Wrapper>
@@ -61,4 +79,4 @@ changePassword.getInitialProps = ({ query }) => {
   };
 };
 
-export default changePassword;
+export default withUrqlClient(createUrqlClient, { ssr: false })(changePassword);
