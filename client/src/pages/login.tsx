@@ -35,7 +35,7 @@ function Login({}: Props) {
             <InputField
               name="usernameOrEmail"
               label="Username or email"
-              placeholder="username Or Email"
+              placeholder="username or email"
               type="text"
             />
 

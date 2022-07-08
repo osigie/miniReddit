@@ -7,6 +7,7 @@ const Index = () => {
   const [{ data }] = usePostsQuery();
   return (
     <>
+    
       <Navbar />
       {!data ? (
         <div>Loading....</div>
@@ -15,7 +16,6 @@ const Index = () => {
           return <div key={i}>{each.title}</div>;
         })
       )}
-      <div>index</div>
     </>
   );
 };
