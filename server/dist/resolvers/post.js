@@ -24,6 +24,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostResolver = void 0;
 const type_graphql_1 = require("type-graphql");
 const Post_1 = require("../entities/Post");
+const authentication_1 = require("../middleware/authentication");
 let UserInput = class UserInput {
 };
 __decorate([
@@ -48,13 +49,7 @@ let PostResolver = class PostResolver {
     }
     createPost(input, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!req.session.userId) {
-                return null;
-            }
-            const post = new Post_1.Post();
-            post.title = input.title;
-            post.text = input.text;
-            post.creatorId = req.session.userId;
+            const post = Post_1.Post.create(Object.assign(Object.assign({}, input), { creatorId: req.session.userId }));
             return yield post.save();
         });
     }
@@ -65,7 +60,7 @@ let PostResolver = class PostResolver {
                 throw new Error("Post not found");
             }
             if (typeof title !== "undefined") {
-                Post_1.Post.update({ _id: id }, { title: title });
+                yield Post_1.Post.update({ _id: id }, { title: title });
             }
             return post;
         });
@@ -92,6 +87,7 @@ __decorate([
 ], PostResolver.prototype, "post", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => Post_1.Post, { nullable: true }),
+    (0, type_graphql_1.UseMiddleware)(authentication_1.authentication),
     __param(0, (0, type_graphql_1.Arg)("input")),
     __param(1, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),

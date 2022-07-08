@@ -8,8 +8,10 @@ import {
   Mutation,
   Query,
   Resolver,
+  UseMiddleware,
 } from "type-graphql";
 import { Post } from "../entities/Post";
+import { authentication } from "../middleware/authentication";
 
 @InputType()
 class UserInput {
@@ -31,17 +33,15 @@ export class PostResolver {
     return Post.findOneBy({ _id: id });
   }
   @Mutation(() => Post, { nullable: true })
+  @UseMiddleware(authentication)
   async createPost(
     @Arg("input") input: UserInput,
     @Ctx() { req }: MyContext
-  ): Promise<Post | null> {
-    if (!req.session.userId) {
-      return null
-    }
-    const post = new Post();
-    post.title = input.title;
-    post.text = input.text;
-    post.creatorId = req.session.userId;
+  ): Promise<Post> {
+    const post = Post.create({
+      ...input,
+      creatorId: req.session.userId,
+    });
     return await post.save();
   }
   @Mutation(() => Post, { nullable: true })
@@ -54,7 +54,7 @@ export class PostResolver {
       throw new Error("Post not found");
     }
     if (typeof title !== "undefined") {
-      Post.update({ _id: id }, { title: title });
+      await Post.update({ _id: id }, { title: title });
     }
     return post;
   }
