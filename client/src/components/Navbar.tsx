@@ -29,7 +29,7 @@ export default function Navbar({}: Props) {
     body = (
       <Flex align="center">
         <NextLink href="/create-post">
-          <Link mr={2}>Create Post</Link>
+          <Link mr={2}>create post</Link>
         </NextLink>
         <NextLink href="/profile">
           <Link mr={2}>Profile</Link>

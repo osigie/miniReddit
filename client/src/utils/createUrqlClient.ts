@@ -1,5 +1,5 @@
 import { cacheExchange } from "@urql/exchange-graphcache";
-import { dedupExchange, fetchExchange } from "urql";
+import { dedupExchange, Exchange, fetchExchange } from "urql";
 import {
   LoginMutation,
   MeQuery,
@@ -8,6 +8,23 @@ import {
   LogoutMutation,
 } from "../generated/graphql";
 import { betterQuery } from "./betterQuery";
+import Router from "next/router";
+import { pipe, tap } from "wonka";
+
+//errorExchange is a function from wonka that takes in a urql
+//error and returns a new error with a better message
+const errorExchange: Exchange =
+  ({ forward }) =>
+  (ops$) => {
+    return pipe(
+      forward(ops$),
+      tap(({ error }) => {
+        if (error?.message.includes("not authenticated")) {
+          Router.replace("/");
+        }
+      })
+    );
+  };
 
 export const createUrqlClient = (ssrExchange: any) => ({
   url: "http://localhost:3500/graphql",
@@ -64,6 +81,7 @@ export const createUrqlClient = (ssrExchange: any) => ({
         },
       },
     }),
+    errorExchange,
     ssrExchange,
     fetchExchange,
   ],
