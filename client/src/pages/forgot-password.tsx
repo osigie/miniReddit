@@ -28,7 +28,7 @@ function ForgotPassword({}: Props) {
       }}
     >
       {({ isSubmitting }) => (
-        <Wrapper varaint={"small"}>
+        <Wrapper variant={"small"}>
           {sent ? (
             <div>Email has been sent to your mail!</div>
           ) : (

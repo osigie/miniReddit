@@ -1,15 +1,18 @@
 import React from "react";
 import { Box } from "@chakra-ui/react";
 
+export type WrapperVariant = "small" | "large" 
+
 type Props = {
-  variant: "small" | "large";
+  variant: WrapperVariant
+  children: React.ReactNode;
 };
 
-export default function Wrapper({ children, varaint }) {
+export default function Wrapper({ children, variant }: Props) {
   return (
     <Box
       mt={8}
-      maxW={varaint === "large" ? "800px" : "400px"}
+      maxW={variant === "large" ? "800px" : "400px"}
       w="100%"
       mx="auto"
     >

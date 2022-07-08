@@ -8,7 +8,7 @@ type Props = {};
 export default function Navbar({}: Props) {
   const [{ fetching: isFetching }, logout] = useLogoutMutation();
   const [{ fetching, data }] = useMeQuery({
-    pause: isServer()
+    pause: isServer(),
   });
   let body = null;
   if (fetching) {
@@ -48,7 +48,7 @@ export default function Navbar({}: Props) {
     );
   }
   return (
-    <Flex p={5} bg="blue">
+    <Flex p={5} bg="tan" position="sticky" top={0} zIndex={1}>
       <Box ml={"auto"}>{body}</Box>
     </Flex>
   );
