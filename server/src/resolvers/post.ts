@@ -1,5 +1,23 @@
-import { Arg, Mutation, Query, Resolver } from "type-graphql";
+import { title } from "process";
+import { MyContext } from "../types/types";
+import {
+  Arg,
+  Ctx,
+  Field,
+  InputType,
+  Mutation,
+  Query,
+  Resolver,
+} from "type-graphql";
 import { Post } from "../entities/Post";
+
+@InputType()
+class UserInput {
+  @Field()
+  title: string;
+  @Field()
+  text: string;
+}
 
 @Resolver()
 export class PostResolver {
@@ -13,10 +31,17 @@ export class PostResolver {
     return Post.findOneBy({ _id: id });
   }
   @Mutation(() => Post, { nullable: true })
-  async createPost(@Arg("title") title: string): Promise<Post | null> {
+  async createPost(
+    @Arg("input") input: UserInput,
+    @Ctx() { req }: MyContext
+  ): Promise<Post | null> {
+    if (!req.session.userId) {
+      return null
+    }
     const post = new Post();
-    post.title = title;
-console.log("this is what i want ooo.....", await post.save())
+    post.title = input.title;
+    post.text = input.text;
+    post.creatorId = req.session.userId;
     return await post.save();
   }
   @Mutation(() => Post, { nullable: true })

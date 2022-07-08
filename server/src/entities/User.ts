@@ -5,8 +5,10 @@ import {
   CreateDateColumn,
   BaseEntity,
   UpdateDateColumn,
+  OneToMany,
 } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
+import { Post } from "./Post";
 
 @ObjectType()
 @Entity()
@@ -17,11 +19,11 @@ export class User extends BaseEntity {
 
   @Field(() => String)
   @CreateDateColumn({ type: "date" })
-  createdAt? : Date;
+  createdAt?: Date;
 
   @Field(() => String)
   @UpdateDateColumn({ type: "date" })
-  updatedAt? : Date;
+  updatedAt?: Date;
 
   @Field()
   @Column({ type: "text", unique: true })
@@ -33,4 +35,7 @@ export class User extends BaseEntity {
 
   @Column({ type: "text" })
   password!: string;
+
+  @OneToMany(() => Post, (post) => post.creator)
+  posts: Post[];
 }

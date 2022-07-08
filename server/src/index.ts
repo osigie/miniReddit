@@ -31,7 +31,6 @@ export const AppDataSource = new DataSource({
 const initializer = async () => {
   // sendMail("kenosagie88@gmail.com", "this is a test")
 
-
   AppDataSource.initialize()
     .then(() => {
       console.log("Data Source has been initialized!");
@@ -39,7 +38,6 @@ const initializer = async () => {
     .catch((err) => {
       console.error("Error during Data Source initialization", err);
     });
-
 
   // redis@v4
   const RedisStore = connectRedis(session);
