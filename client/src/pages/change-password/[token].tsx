@@ -10,14 +10,14 @@ import { useRouter } from "next/router";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 import NextLink from "next/link";
+import { type } from "os";
 
 type Props = {
   // token: string;
 };
 
-const changePassword: NextPage<{ token: string }> = ({}: Props) => {
+const changePassword = ({}: Props) => {
   const router = useRouter();
-  const token = router.query.token;
   const [state, setState] = useState("");
 
   const [, changePassword] = useNewPasswordMutation();
@@ -26,7 +26,8 @@ const changePassword: NextPage<{ token: string }> = ({}: Props) => {
       initialValues={{ newPassword: "" }}
       onSubmit={async (values, { setErrors }) => {
         const response = await changePassword({
-          token: String(token),
+          token:
+            typeof router.query.token !== "string" ? "" : router.query.token,
           newPassword: values.newPassword,
         });
         if (response.data?.newPassword.errors) {
@@ -42,7 +43,7 @@ const changePassword: NextPage<{ token: string }> = ({}: Props) => {
       }}
     >
       {({ isSubmitting }) => (
-        <Wrapper varaint={"small"}>
+        <Wrapper variant={"small"}>
           <Form>
             <InputField
               name="newPassword"

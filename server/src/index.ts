@@ -58,8 +58,8 @@ const initializer = async () => {
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 5, //5 years
         httpOnly: true,
-        secure: __prod__, //only in production
-        sameSite: "lax", //csrf
+        secure: true, //only in production
+        sameSite: "none", //csrf
       },
       saveUninitialized: false,
       secret: "kjsxfksjifhisufhsjkdhfsdhfioshf",

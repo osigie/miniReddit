@@ -12,6 +12,7 @@ import NextLink from "next/link";
 type Props = {};
 function Login({}: Props) {
   const router = useRouter();
+  console.log(router)
   const [, login] = useLoginMutation();
   return (
     <Formik
@@ -24,13 +25,17 @@ function Login({}: Props) {
         if (response.data?.login.errors) {
           setErrors(errorConverter(response.data.login.errors));
         } else if (response.data?.login.user) {
-          // login
-          router.push("/");
+          if (router.query.next) {
+            router.push(router.query.next as string);
+          } else {
+            // login
+            router.push("/");
+          }
         }
       }}
     >
       {({ isSubmitting }) => (
-        <Wrapper varaint={"small"}>
+        <Wrapper variant={"small"}>
           <Form>
             <InputField
               name="usernameOrEmail"
@@ -50,7 +55,7 @@ function Login({}: Props) {
             <Box mt={2}>
               <Flex>
                 <NextLink href="/forgot-password">
-                  <Link ml = "auto">forgot password?</Link>
+                  <Link ml="auto">forgot password?</Link>
                 </NextLink>
               </Flex>
             </Box>
