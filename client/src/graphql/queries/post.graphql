@@ -1,5 +1,5 @@
-query Posts($cursor: String, $limit: Float) {
-  posts(cursor: $cursor, limit: $limit) {
+query Posts($limit: Int!, $cursor: String) {
+  posts(limit: $limit, cursor: $cursor) {
     _id
     createdAt
     updatedAt

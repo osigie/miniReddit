@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Box, Button, Flex, Link } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
-import { isServer } from "../utils/isServer";
 type Props = {};
 
 export default function Navbar({}: Props) {

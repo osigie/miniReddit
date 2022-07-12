@@ -1,22 +1,39 @@
-import Navbar from "../components/Navbar";
-import { createUrqlClient } from "../utils/createUrqlClient";
+import { Box, Heading, Stack, Text } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
-import { usePostsQuery } from "../generated/graphql";
 import Layout from "../components/Layout";
+import { usePostsQuery } from "../generated/graphql";
+import { createUrqlClient } from "../utils/createUrqlClient";
 
 const Index = () => {
-  const [{ data }] = usePostsQuery();
-  console.log(data)
+  const limit = 10
+  const [{ data }] = usePostsQuery({variables: {limit, cursor: null}})
   return (
-    <Layout variant = "large">
+    <Layout variant="large">
       {!data ? (
         <div>Loading....</div>
       ) : (
-        data.posts.map((each, i) => {
-          return <div key={i}>{each.title}</div>;
-        })
+        <Stack spacing={8} direction="column">
+          {data.posts.map((each, i) => {
+            return (
+              <Feature title={each.title} desc={each.text} key={each._id} />
+            );
+          })}
+        </Stack>
       )}
     </Layout>
   );
 };
 export default withUrqlClient(createUrqlClient, { ssr: true })(Index);
+
+type FeatureProps = {
+  title: string;
+  desc: string;
+};
+function Feature({ title, desc, ...rest }: FeatureProps) {
+  return (
+    <Box p={5} shadow="md" borderWidth="1px" {...rest}>
+      <Heading fontSize="xl">{title}</Heading>
+      <Text mt={4}>{desc}</Text>
+    </Box>
+  );
+}

@@ -5,6 +5,7 @@ import {
   Ctx,
   Field,
   InputType,
+  Int,
   Mutation,
   Query,
   Resolver,
@@ -26,7 +27,7 @@ class UserInput {
 export class PostResolver {
   @Query(() => [Post])
   async posts(
-    @Arg("limit", { nullable: true }) limit: number,
+    @Arg("limit", () => Int, { nullable: true }) limit: number,
     @Arg("cursor", () => String, { nullable: true }) cursor: string | null
   ): Promise<Post[]> {
     const realLimit = Math.min(50, limit);
