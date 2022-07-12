@@ -28,6 +28,7 @@ const User_1 = require("./entities/User");
 const hello_1 = require("./resolvers/hello");
 const post_1 = require("./resolvers/post");
 const user_1 = require("./resolvers/user");
+const path_1 = __importDefault(require("path"));
 const app = (0, express_1.default)();
 exports.AppDataSource = new typeorm_1.DataSource({
     type: "postgres",
@@ -39,6 +40,7 @@ exports.AppDataSource = new typeorm_1.DataSource({
     entities: [User_1.User, Post_1.Post],
     synchronize: true,
     logging: true,
+    migrations: [path_1.default.join(__dirname, "./migrations/*.ts")],
 });
 const initializer = () => __awaiter(void 0, void 0, void 0, function* () {
     exports.AppDataSource.initialize()
@@ -61,8 +63,8 @@ const initializer = () => __awaiter(void 0, void 0, void 0, function* () {
         cookie: {
             maxAge: 1000 * 60 * 60 * 24 * 5,
             httpOnly: true,
-            secure: true,
-            sameSite: "none",
+            secure: constants_1.__prod__,
+            sameSite: "lax",
         },
         saveUninitialized: false,
         secret: "kjsxfksjifhisufhsjkdhfsdhfioshf",

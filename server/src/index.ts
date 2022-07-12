@@ -14,7 +14,7 @@ import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
 import { MyContext } from "./types/types";
-
+import path from "path";
 const app = express();
 
 export const AppDataSource = new DataSource({
@@ -27,9 +27,15 @@ export const AppDataSource = new DataSource({
   entities: [User, Post],
   synchronize: true,
   logging: true,
+  migrations: [path.join(__dirname, "./migrations/*.ts")],
 });
+
+
+
+
 const initializer = async () => {
   // sendMail("kenosagie88@gmail.com", "this is a test")
+
 
   AppDataSource.initialize()
     .then(() => {
@@ -38,6 +44,9 @@ const initializer = async () => {
     .catch((err) => {
       console.error("Error during Data Source initialization", err);
     });
+
+
+
 
   // redis@v4
   const RedisStore = connectRedis(session);
@@ -58,8 +67,8 @@ const initializer = async () => {
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 5, //5 years
         httpOnly: true,
-        secure: true, //only in production
-        sameSite: "none", //csrf
+        secure: __prod__, //only in production
+        sameSite: "lax", //csrf
       },
       saveUninitialized: false,
       secret: "kjsxfksjifhisufhsjkdhfsdhfioshf",
