@@ -6,6 +6,7 @@ import Layout from "../components/Layout";
 
 const Index = () => {
   const [{ data }] = usePostsQuery();
+  console.log(data)
   return (
     <Layout variant = "large">
       {!data ? (

@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "watch": "tsc -watch",
-    "start": "nodemon dist/index.js"
+    "start": "nodemon dist/index.js",
+    "migration": "npx typeorm-ts-node-esm migration:run -d src/index.ts"
   },
   "repository": {
     "type": "git",

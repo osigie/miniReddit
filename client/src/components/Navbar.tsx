@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Button, Flex, Link } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
@@ -6,10 +6,13 @@ import { isServer } from "../utils/isServer";
 type Props = {};
 
 export default function Navbar({}: Props) {
+
+  const [shouldFetch, setShouldFetch] = useState(true)
   const [{ fetching: isFetching }, logout] = useLogoutMutation();
   const [{ fetching, data }] = useMeQuery({
-    pause: isServer(),
+    pause: shouldFetch,
   });
+   useEffect(() => setShouldFetch(false), []);
   let body = null;
   if (fetching) {
     //body should be null

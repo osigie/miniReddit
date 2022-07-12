@@ -30,12 +30,8 @@ export const AppDataSource = new DataSource({
   migrations: [path.join(__dirname, "./migrations/*.ts")],
 });
 
-
-
-
 const initializer = async () => {
   // sendMail("kenosagie88@gmail.com", "this is a test")
-
 
   AppDataSource.initialize()
     .then(() => {
@@ -45,9 +41,7 @@ const initializer = async () => {
       console.error("Error during Data Source initialization", err);
     });
 
-
-
-
+  // await Post.delete({})
   // redis@v4
   const RedisStore = connectRedis(session);
   const redis = new Redis();
