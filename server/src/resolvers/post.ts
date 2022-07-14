@@ -1,14 +1,16 @@
-import { title } from "process";
 import { MyContext } from "../types/types";
 import {
   Arg,
   Ctx,
   Field,
+  FieldResolver,
   InputType,
   Int,
   Mutation,
+  ObjectType,
   Query,
   Resolver,
+  Root,
   UseMiddleware,
 } from "type-graphql";
 import { Post } from "../entities/Post";
@@ -23,24 +25,40 @@ class UserInput {
   text: string;
 }
 
-@Resolver()
+@ObjectType()
+class PaginatedPosts {
+  @Field(() => [Post])
+  posts: Post[];
+  @Field(() => Boolean)
+  more: Boolean;
+}
+
+@Resolver(Post)
 export class PostResolver {
-  @Query(() => [Post])
+  @FieldResolver(() => String)
+  textSnippet(@Root() post: Post) {
+    return post.text.substring(0, 100);
+  }
+
+  @Query(() => PaginatedPosts)
   async posts(
     @Arg("limit", () => Int, { nullable: true }) limit: number,
     @Arg("cursor", () => String, { nullable: true }) cursor: string | null
-  ): Promise<Post[]> {
+  ): Promise<PaginatedPosts> {
     const realLimit = Math.min(50, limit);
+    const realLimitPlus = realLimit + 1;
     const posts = AppDataSource.getRepository(Post)
       .createQueryBuilder("post")
       .orderBy("post.createdAt", "DESC")
-      .take(realLimit);
+      .take(realLimitPlus);
     if (cursor) {
       posts.where("post.createdAt < :cursor", {
         cursor,
       });
     }
-    return posts.getMany();
+    const actualPost = (await posts.getMany()).slice(0, realLimit);
+    const hasMore = actualPost.length === realLimitPlus;
+    return { posts: actualPost, more: hasMore };
   }
 
   @Query(() => Post, { nullable: true })

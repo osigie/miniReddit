@@ -12,7 +12,6 @@ import NextLink from "next/link";
 type Props = {};
 function Login({}: Props) {
   const router = useRouter();
-  console.log(router)
   const [, login] = useLoginMutation();
   return (
     <Formik

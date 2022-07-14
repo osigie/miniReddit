@@ -63,8 +63,8 @@ const initializer = () => __awaiter(void 0, void 0, void 0, function* () {
         cookie: {
             maxAge: 1000 * 60 * 60 * 24 * 5,
             httpOnly: true,
-            secure: constants_1.__prod__,
-            sameSite: "lax",
+            secure: true,
+            sameSite: "none",
         },
         saveUninitialized: false,
         secret: "kjsxfksjifhisufhsjkdhfsdhfioshf",
