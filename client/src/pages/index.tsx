@@ -1,4 +1,4 @@
-import { Stack } from "@chakra-ui/react";
+import { Button, Flex, Stack } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import Layout from "../components/Layout";
 import { usePostsQuery } from "../generated/graphql";
@@ -7,14 +7,20 @@ import { Feature } from "../components/Feature";
 
 const Index = () => {
   const limit = 10;
-  const [{ data }] = usePostsQuery({ variables: { limit, cursor: null } });
+  const [{ data, fetching }] = usePostsQuery({
+    variables: { limit, cursor: null },
+  });
+
+  if (!data && !fetching) {
+    return <div>Somthing went wrong...</div>;
+  }
   return (
     <Layout variant="large">
       {!data ? (
         <div>Loading....</div>
       ) : (
         <Stack spacing={8} direction="column">
-          {data.posts.map((each, i) => {
+          {data.posts.posts.map((each, i) => {
             return (
               <Feature
                 title={each.title}
@@ -25,6 +31,13 @@ const Index = () => {
           })}
         </Stack>
       )}
+      {data && !data.posts.more ? (
+        <Flex>
+          <Button m="auto" my={5} isLoading={fetching}>
+            Load More
+          </Button>
+        </Flex>
+      ) : null}
     </Layout>
   );
 };

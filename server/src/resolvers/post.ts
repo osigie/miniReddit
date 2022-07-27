@@ -16,6 +16,7 @@ import {
 import { Post } from "../entities/Post";
 import { authentication } from "../middleware/authentication";
 import { AppDataSource } from "../index";
+import { User } from "../entities/User";
 
 @InputType()
 class UserInput {
