@@ -1,15 +1,21 @@
-import { Button, Flex, Stack } from "@chakra-ui/react";
+import { Button, Flex, Stack, StatArrow } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import Layout from "../components/Layout";
-import { usePostsQuery } from "../generated/graphql";
+import { PostsDocument, usePostsQuery } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { Feature } from "../components/Feature";
+import { useState } from "react";
 
 const Index = () => {
-  const limit = 10;
-  const [{ data, fetching }] = usePostsQuery({
-    variables: { limit, cursor: null },
+  const [variables, setVariables] = useState({
+    limit: 10,
+    cursor: null as null | string,
   });
+
+  const [{ data, fetching }] = usePostsQuery({
+    variables,
+  });
+
 
   if (!data && !fetching) {
     return <div>Somthing went wrong...</div>;
@@ -20,7 +26,7 @@ const Index = () => {
         <div>Loading....</div>
       ) : (
         <Stack spacing={8} direction="column">
-          {data.posts.posts.map((each, i) => {
+          {data?.posts.posts?.map((each, i) => {
             return (
               <Feature
                 title={each.title}
@@ -33,7 +39,17 @@ const Index = () => {
       )}
       {data && !data.posts.more ? (
         <Flex>
-          <Button m="auto" my={5} isLoading={fetching}>
+          <Button
+            m="auto"
+            my={5}
+            isLoading={fetching}
+            onClick={() =>
+              setVariables({
+                limit: variables.limit,
+                cursor: data.posts.posts[data.posts.posts.length - 1].createdAt,
+              })
+            }
+          >
             Load More
           </Button>
         </Flex>
