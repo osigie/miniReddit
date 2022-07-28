@@ -17,6 +17,7 @@ import { Post } from "../entities/Post";
 import { authentication } from "../middleware/authentication";
 import { AppDataSource } from "../index";
 import { User } from "../entities/User";
+import { Updoot } from "../entities/Updoot";
 
 @InputType()
 class UserInput {
@@ -49,48 +50,53 @@ export class PostResolver {
   ): Promise<Boolean> {
     const userId = req.session.userId;
     const realValue = point !== -1 ? 1 : -1;
-    // const user = await User.findOneBy({ _id: userId });
-    // const post = await Post.findOneBy({ _id: id });
-    // if (!post) {
-    //   throw new Error("Post not found");
-    // }
-    // if (post.updoots.find((updoot) => updoot.userId === userId)) {
-    //   throw new Error("Already voted");
-    // }
-    // post.updoots.push({ userId: userId, user: user as User });
-    // await post.save();
-    // return true;
 
-    const vote = await AppDataSource.query(
-      `START TRANSACTION;
+    const updoots = await Updoot.findOne({
+      where: { postId, creatorId: userId },
+    });
 
-      insert into updoot ("creatorId", "postId", vote_point)
-       values (${userId}, ${postId}, ${realValue});
+    ///they have voted before and are changing their vote count
+    if (updoots && updoots.vote_point !== realValue) {
+      await AppDataSource.transaction(async (tm) => {
+        await tm.query(
+          `UPDATE updoot set vote_point = $1 where "postId" = $2 and "creatorId" = $3`,
+          [realValue, postId, userId]
+        );
 
-      update post 
-      set points = points + ${realValue}
-      where _id = ${postId};
-      COMMIT;
-      `
-    );
+        await tm.query(
+          `
+        UPDATE post SET points = points + $1 WHERE _id = $2`,
+          [2 * realValue, postId]
+        );
+      });
+    } else if (!updoots) {
+      //the user have not voted before
+      await AppDataSource.transaction(async (tm) => {
+        await tm.query(
+          `INSERT INTO updoot ("postId", "creatorId", vote_point) VALUES ($1, $2, $3)`,
+          [postId, userId, realValue]
+        );
+        await tm.query(
+          `
+        UPDATE post SET points = points + $1 WHERE _id = $2`,
+          [realValue, postId]
+        );
+      });
+    }
+    // const vote = await AppDataSource.query(
+    //   `START TRANSACTION;
+
+    //   insert into updoot ("creatorId", "postId", vote_point)
+    //    values (${userId}, ${postId}, ${realValue});
+
+    //   update post
+    //   set points = points + ${realValue}
+    //   where _id = ${postId};
+    //   COMMIT;
+    //   `
+    // );
     return true;
   }
-
-  //   async unvote(@Arg("id") id: number, @Ctx() { req }: MyContext): Promise<Boolean> {
-  //     const userId = req.session.userId;
-  //     const user = await User.findOneBy({ _id: userId });
-  //     const post = await Post.findOneBy({ _id: id });
-  //     if (!post) {
-  //       throw new Error("Post not found");
-  //     }
-  //     if (!post.updoots.find((updoot) => updoot.userId === userId)) {
-  //       throw new Error("Already voted");
-  //     }
-  //     post.updoots = post.updoots.filter((updoot) => updoot.userId !== userId);
-  //     await post.save();
-  //     return true;
-  //   }
-  // }
 
   @Query(() => PaginatedPosts)
   async posts(

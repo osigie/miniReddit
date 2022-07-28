@@ -27,6 +27,7 @@ const Post_1 = require("../entities/Post");
 const authentication_1 = require("../middleware/authentication");
 const index_1 = require("../index");
 const User_1 = require("../entities/User");
+const Updoot_1 = require("../entities/Updoot");
 let UserInput = class UserInput {
 };
 __decorate([
@@ -61,16 +62,23 @@ let PostResolver = class PostResolver {
         return __awaiter(this, void 0, void 0, function* () {
             const userId = req.session.userId;
             const realValue = point !== -1 ? 1 : -1;
-            const vote = yield index_1.AppDataSource.query(`START TRANSACTION;
-
-      insert into updoot ("creatorId", "postId", vote_point)
-       values (${userId}, ${postId}, ${realValue});
-
-      update post 
-      set points = points + ${realValue}
-      where _id = ${postId};
-      COMMIT;
-      `);
+            const updoots = yield Updoot_1.Updoot.findOne({
+                where: { postId, creatorId: userId },
+            });
+            if (updoots && updoots.vote_point !== realValue) {
+                yield index_1.AppDataSource.transaction((tm) => __awaiter(this, void 0, void 0, function* () {
+                    yield tm.query(`UPDATE updoot set vote_point = $1 where "postId" = $2 and "creatorId" = $3`, [realValue, postId, userId]);
+                    yield tm.query(`
+        UPDATE post SET points = points + $1 WHERE _id = $2`, [2 * realValue, postId]);
+                }));
+            }
+            else if (!updoots) {
+                yield index_1.AppDataSource.transaction((tm) => __awaiter(this, void 0, void 0, function* () {
+                    yield tm.query(`INSERT INTO updoot ("postId", "creatorId", vote_point) VALUES ($1, $2, $3)`, [postId, userId, realValue]);
+                    yield tm.query(`
+        UPDATE post SET points = points + $1 WHERE _id = $2`, [realValue, postId]);
+                }));
+            }
             return true;
         });
     }
