@@ -23,7 +23,7 @@ export const AppDataSource = new DataSource({
   port: 5432,
   username: "postgres",
   password: "12345",
-  database: "minireddit2",
+  database: "minireddit3",
   entities: [User, Post],
   synchronize: true,
   logging: true,

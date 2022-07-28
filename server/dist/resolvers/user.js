@@ -61,6 +61,9 @@ UserResponse = __decorate([
     (0, type_graphql_1.ObjectType)()
 ], UserResponse);
 let UserResolver = class UserResolver {
+    email(user, { req }) {
+        return req.session.userId === user._id ? user.email : "";
+    }
     register(details, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const errors = (0, validateRegister_1.validateRegister)(details);
@@ -189,6 +192,14 @@ let UserResolver = class UserResolver {
     }
 };
 __decorate([
+    (0, type_graphql_1.FieldResolver)(() => String),
+    __param(0, (0, type_graphql_1.Root)()),
+    __param(1, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [User_1.User, Object]),
+    __metadata("design:returntype", void 0)
+], UserResolver.prototype, "email", null);
+__decorate([
     (0, type_graphql_1.Mutation)(() => UserResponse),
     __param(0, (0, type_graphql_1.Arg)("details")),
     __param(1, (0, type_graphql_1.Ctx)()),
@@ -237,7 +248,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "newPassword", null);
 UserResolver = __decorate([
-    (0, type_graphql_1.Resolver)()
+    (0, type_graphql_1.Resolver)(User_1.User)
 ], UserResolver);
 exports.UserResolver = UserResolver;
 //# sourceMappingURL=user.js.map

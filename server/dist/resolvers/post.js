@@ -26,6 +26,7 @@ const type_graphql_1 = require("type-graphql");
 const Post_1 = require("../entities/Post");
 const authentication_1 = require("../middleware/authentication");
 const index_1 = require("../index");
+const User_1 = require("../entities/User");
 let UserInput = class UserInput {
 };
 __decorate([
@@ -60,17 +61,27 @@ let PostResolver = class PostResolver {
         return __awaiter(this, void 0, void 0, function* () {
             const realLimit = Math.min(50, limit);
             const realLimitPlus = realLimit + 1;
-            const posts = index_1.AppDataSource.getRepository(Post_1.Post)
-                .createQueryBuilder("post")
-                .orderBy("post.createdAt", "DESC")
-                .take(realLimitPlus);
+            const replacements = [realLimitPlus];
             if (cursor) {
-                posts.where("post.createdAt < :cursor", {
-                    cursor,
-                });
+                replacements.push(new Date(parseInt(cursor)));
             }
-            const actualPost = (yield posts.getMany()).slice(0, realLimit);
-            const hasMore = actualPost.length === realLimitPlus;
+            const posts = yield index_1.AppDataSource.query(`SELECT p.*, 
+      json_build_object(
+        '_id', u._id,
+        'username', u.username,
+        'email', u.email,
+        'createdAt', u."createdAt",
+         'updatedAt', u."updatedAt"
+      ) creator
+      from post p
+      inner join public.user u on u._id = p."creatorId"
+      ${cursor ? `WHERE p."createdAt"   < $2` : ""}
+      ORDER BY p."createdAt" DESC
+      limit $1
+      
+      `, replacements);
+            const actualPost = posts.slice(0, realLimit);
+            const hasMore = posts.length === realLimitPlus;
             return { posts: actualPost, more: hasMore };
         });
     }
@@ -79,7 +90,9 @@ let PostResolver = class PostResolver {
     }
     createPost(input, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
-            const post = Post_1.Post.create(Object.assign(Object.assign({}, input), { creatorId: req.session.userId }));
+            const userId = req.session.userId;
+            const user = yield User_1.User.findOneBy({ _id: userId });
+            const post = Post_1.Post.create(Object.assign(Object.assign({}, input), { creatorId: req.session.userId, creator: user }));
             return yield post.save();
         });
     }

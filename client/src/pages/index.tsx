@@ -16,7 +16,6 @@ const Index = () => {
     variables,
   });
 
-
   if (!data && !fetching) {
     return <div>Somthing went wrong...</div>;
   }

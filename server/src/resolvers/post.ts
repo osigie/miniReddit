@@ -48,17 +48,44 @@ export class PostResolver {
   ): Promise<PaginatedPosts> {
     const realLimit = Math.min(50, limit);
     const realLimitPlus = realLimit + 1;
-    const posts = AppDataSource.getRepository(Post)
-      .createQueryBuilder("post")
-      .orderBy("post.createdAt", "DESC")
-      .take(realLimitPlus);
+
+    const replacements: any[] = [realLimitPlus];
+
     if (cursor) {
-      posts.where("post.createdAt < :cursor", {
-        cursor,
-      });
+      replacements.push(new Date(parseInt(cursor)));
     }
-    const actualPost = (await posts.getMany()).slice(0, realLimit);
-    const hasMore = actualPost.length === realLimitPlus;
+    const posts = await AppDataSource.query(
+      `SELECT p.*, 
+      json_build_object(
+        '_id', u._id,
+        'username', u.username,
+        'email', u.email,
+        'createdAt', u."createdAt",
+         'updatedAt', u."updatedAt"
+      ) creator
+      from post p
+      inner join public.user u on u._id = p."creatorId"
+      ${cursor ? `WHERE p."createdAt"   < $2` : ""}
+      ORDER BY p."createdAt" DESC
+      limit $1
+      
+      `,
+      replacements
+    );
+
+    // getRepository(Post)
+    //   .createQueryBuilder("post")
+    //   .innerJoinAndSelect("post.creator", "creator._id = post.creatorId")
+    //   .orderBy("post.createdAt", "DESC")
+    //   .take(realLimitPlus);
+    // if (cursor) {
+    //   posts.where("post.createdAt < :cursor", {
+    //     cursor,
+    //   });
+    // }
+    // const actualPost = (await posts.getMany()).slice(0, realLimit);
+    const actualPost = posts.slice(0, realLimit);
+    const hasMore = posts.length === realLimitPlus;
     return { posts: actualPost, more: hasMore };
   }
 
@@ -66,18 +93,24 @@ export class PostResolver {
   post(@Arg("id") id: number): Promise<Post | null> {
     return Post.findOneBy({ _id: id });
   }
+
   @Mutation(() => Post, { nullable: true })
   @UseMiddleware(authentication)
   async createPost(
     @Arg("input") input: UserInput,
     @Ctx() { req }: MyContext
   ): Promise<Post> {
+    const userId = req.session.userId;
+    const user = await User.findOneBy({ _id: userId });
     const post = Post.create({
       ...input,
       creatorId: req.session.userId,
+      creator: user as User,
     });
+
     return await post.save();
   }
+
   @Mutation(() => Post, { nullable: true })
   async updatePost(
     @Arg("id") id: number,

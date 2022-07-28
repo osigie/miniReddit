@@ -36,7 +36,7 @@ exports.AppDataSource = new typeorm_1.DataSource({
     port: 5432,
     username: "postgres",
     password: "12345",
-    database: "minireddit2",
+    database: "minireddit3",
     entities: [User_1.User, Post_1.Post],
     synchronize: true,
     logging: true,
