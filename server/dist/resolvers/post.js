@@ -57,6 +57,23 @@ let PostResolver = class PostResolver {
     textSnippet(post) {
         return post.text.substring(0, 100);
     }
+    vote(postId, point, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const userId = req.session.userId;
+            const realValue = point !== -1 ? 1 : -1;
+            const vote = yield index_1.AppDataSource.query(`START TRANSACTION;
+
+      insert into updoot ("creatorId", "postId", vote_point)
+       values (${userId}, ${postId}, ${realValue});
+
+      update post 
+      set points = points + ${realValue}
+      where _id = ${postId};
+      COMMIT;
+      `);
+            return true;
+        });
+    }
     posts(limit, cursor) {
         return __awaiter(this, void 0, void 0, function* () {
             const realLimit = Math.min(50, limit);
@@ -122,6 +139,15 @@ __decorate([
     __metadata("design:paramtypes", [Post_1.Post]),
     __metadata("design:returntype", void 0)
 ], PostResolver.prototype, "textSnippet", null);
+__decorate([
+    (0, type_graphql_1.Mutation)(() => Boolean),
+    __param(0, (0, type_graphql_1.Arg)("postId", () => type_graphql_1.Int)),
+    __param(1, (0, type_graphql_1.Arg)("point", () => type_graphql_1.Int)),
+    __param(2, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, Object]),
+    __metadata("design:returntype", Promise)
+], PostResolver.prototype, "vote", null);
 __decorate([
     (0, type_graphql_1.Query)(() => PaginatedPosts),
     __param(0, (0, type_graphql_1.Arg)("limit", () => type_graphql_1.Int, { nullable: true })),

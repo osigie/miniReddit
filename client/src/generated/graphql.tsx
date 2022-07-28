@@ -31,6 +31,7 @@ export type Mutation = {
   newPassword: UserResponse;
   register: UserResponse;
   updatePost?: Maybe<Post>;
+  vote: Scalars['Boolean'];
 };
 
 
@@ -71,6 +72,12 @@ export type MutationUpdatePostArgs = {
   title: Scalars['String'];
 };
 
+
+export type MutationVoteArgs = {
+  point: Scalars['Int'];
+  postId: Scalars['Int'];
+};
+
 export type PaginatedPosts = {
   __typename?: 'PaginatedPosts';
   more: Scalars['Boolean'];
@@ -81,6 +88,7 @@ export type Post = {
   __typename?: 'Post';
   _id: Scalars['Float'];
   createdAt: Scalars['String'];
+  creator: User;
   creatorId: Scalars['Float'];
   points: Scalars['Float'];
   text: Scalars['String'];
@@ -189,7 +197,7 @@ export type PostsQueryVariables = Exact<{
 }>;
 
 
-export type PostsQuery = { __typename?: 'Query', posts: { __typename?: 'PaginatedPosts', more: boolean, posts: Array<{ __typename?: 'Post', _id: number, createdAt: string, updatedAt: string, title: string, creatorId: number, points: number, textSnippet: string }> } };
+export type PostsQuery = { __typename?: 'Query', posts: { __typename?: 'PaginatedPosts', more: boolean, posts: Array<{ __typename?: 'Post', _id: number, createdAt: string, updatedAt: string, title: string, creatorId: number, points: number, textSnippet: string, creator: { __typename?: 'User', _id: number, username: string } }> } };
 
 export const NormalUserFragmentDoc = gql`
     fragment NormalUser on User {
@@ -309,6 +317,10 @@ export const PostsDocument = gql`
       creatorId
       points
       textSnippet
+      creator {
+        _id
+        username
+      }
     }
     more
   }

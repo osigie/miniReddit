@@ -30,12 +30,12 @@ export default function Navbar({}: Props) {
   } else {
     body = (
       <Flex align="center">
-        <NextLink href="/create-post">
+        {/* <NextLink href="/create-post">
           <Link mr={2}>create post</Link>
-        </NextLink>
-        <NextLink href="/profile">
+        </NextLink> */}
+        {/* <NextLink href="/profile">
           <Link mr={2}>Profile</Link>
-        </NextLink>
+        </NextLink> */}
         <Box mr={2}>{data.me.username}</Box>
         <Button
           onClick={() => {

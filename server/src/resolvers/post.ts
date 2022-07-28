@@ -41,6 +41,57 @@ export class PostResolver {
     return post.text.substring(0, 100);
   }
 
+  @Mutation(() => Boolean)
+  async vote(
+    @Arg("postId", () => Int) postId: number,
+    @Arg("point", () => Int) point: number,
+    @Ctx() { req }: MyContext
+  ): Promise<Boolean> {
+    const userId = req.session.userId;
+    const realValue = point !== -1 ? 1 : -1;
+    // const user = await User.findOneBy({ _id: userId });
+    // const post = await Post.findOneBy({ _id: id });
+    // if (!post) {
+    //   throw new Error("Post not found");
+    // }
+    // if (post.updoots.find((updoot) => updoot.userId === userId)) {
+    //   throw new Error("Already voted");
+    // }
+    // post.updoots.push({ userId: userId, user: user as User });
+    // await post.save();
+    // return true;
+
+    const vote = await AppDataSource.query(
+      `START TRANSACTION;
+
+      insert into updoot ("creatorId", "postId", vote_point)
+       values (${userId}, ${postId}, ${realValue});
+
+      update post 
+      set points = points + ${realValue}
+      where _id = ${postId};
+      COMMIT;
+      `
+    );
+    return true;
+  }
+
+  //   async unvote(@Arg("id") id: number, @Ctx() { req }: MyContext): Promise<Boolean> {
+  //     const userId = req.session.userId;
+  //     const user = await User.findOneBy({ _id: userId });
+  //     const post = await Post.findOneBy({ _id: id });
+  //     if (!post) {
+  //       throw new Error("Post not found");
+  //     }
+  //     if (!post.updoots.find((updoot) => updoot.userId === userId)) {
+  //       throw new Error("Already voted");
+  //     }
+  //     post.updoots = post.updoots.filter((updoot) => updoot.userId !== userId);
+  //     await post.save();
+  //     return true;
+  //   }
+  // }
+
   @Query(() => PaginatedPosts)
   async posts(
     @Arg("limit", () => Int, { nullable: true }) limit: number,

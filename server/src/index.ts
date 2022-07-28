@@ -15,6 +15,7 @@ import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
 import { MyContext } from "./types/types";
 import path from "path";
+import { Updoot } from "./entities/Updoot";
 const app = express();
 
 export const AppDataSource = new DataSource({
@@ -24,7 +25,7 @@ export const AppDataSource = new DataSource({
   username: "postgres",
   password: "12345",
   database: "minireddit3",
-  entities: [User, Post],
+  entities: [User, Post, Updoot],
   synchronize: true,
   logging: true,
   migrations: [path.join(__dirname, "./migrations/*.ts")],

@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Updoot = void 0;
 const type_graphql_1 = require("type-graphql");
 const typeorm_1 = require("typeorm");
+const Post_1 = require("./Post");
 const User_1 = require("./User");
 let Updoot = class Updoot extends typeorm_1.BaseEntity {
 };
@@ -32,17 +33,17 @@ __decorate([
 ], Updoot.prototype, "postId", void 0);
 __decorate([
     (0, type_graphql_1.Field)(),
-    (0, typeorm_1.ManyToMany)(() => Post, (post) => post.updoots),
+    (0, typeorm_1.ManyToMany)(() => Post_1.Post, (post) => post.updoots),
     __metadata("design:type", User_1.User)
 ], Updoot.prototype, "post", void 0);
 __decorate([
     (0, type_graphql_1.Field)(),
     (0, typeorm_1.Column)({ type: "int" }),
     __metadata("design:type", Number)
-], Updoot.prototype, "vote", void 0);
+], Updoot.prototype, "vote_point", void 0);
 Updoot = __decorate([
     (0, type_graphql_1.ObjectType)(),
     (0, typeorm_1.Entity)()
 ], Updoot);
 exports.Updoot = Updoot;
-//# sourceMappingURL=updoots.js.map
+//# sourceMappingURL=Updoot.js.map

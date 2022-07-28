@@ -20,12 +20,14 @@ const createPost = (props: Props) => {
       <Formik
         initialValues={{ title: "", text: "" }}
         onSubmit={async (values, { setErrors }) => {
-          const { error } = await createPost({ input: values });
+          const { error,data} = await createPost({ input: values });
           if (!error) {
             router.push("/");
           }
         }}
       >
+
+   
         {({ isSubmitting }) => (
           <Wrapper variant={"small"}>
             <Form>

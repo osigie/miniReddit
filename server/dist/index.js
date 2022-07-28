@@ -29,6 +29,7 @@ const hello_1 = require("./resolvers/hello");
 const post_1 = require("./resolvers/post");
 const user_1 = require("./resolvers/user");
 const path_1 = __importDefault(require("path"));
+const Updoot_1 = require("./entities/Updoot");
 const app = (0, express_1.default)();
 exports.AppDataSource = new typeorm_1.DataSource({
     type: "postgres",
@@ -37,7 +38,7 @@ exports.AppDataSource = new typeorm_1.DataSource({
     username: "postgres",
     password: "12345",
     database: "minireddit3",
-    entities: [User_1.User, Post_1.Post],
+    entities: [User_1.User, Post_1.Post, Updoot_1.Updoot],
     synchronize: true,
     logging: true,
     migrations: [path_1.default.join(__dirname, "./migrations/*.ts")],

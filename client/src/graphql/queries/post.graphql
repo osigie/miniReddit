@@ -7,7 +7,12 @@ query Posts($cursor: String, $limit: Int) {
       title
       creatorId
       points
-      textSnippet
+      textSnippet,
+       creator{
+        _id
+        username
+        
+       }
     }
     more
   }

@@ -1,10 +1,18 @@
-import { Button, Flex, Stack, StatArrow } from "@chakra-ui/react";
+import {
+  Button,
+  Flex,
+  Heading,
+  Link,
+  Stack,
+  StatArrow,
+} from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import Layout from "../components/Layout";
 import { PostsDocument, usePostsQuery } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { Feature } from "../components/Feature";
 import { useState } from "react";
+import NextLink from "next/link";
 
 const Index = () => {
   const [variables, setVariables] = useState({
@@ -21,6 +29,14 @@ const Index = () => {
   }
   return (
     <Layout variant="large">
+      <Flex>
+        <Heading>miniReddit</Heading>
+        <NextLink href="/create-post">
+          <Link ml="auto">create post</Link>
+        </NextLink>
+      </Flex>
+
+      <br />
       {!data ? (
         <div>Loading....</div>
       ) : (
@@ -29,6 +45,7 @@ const Index = () => {
             return (
               <Feature
                 title={each.title}
+                name={"posted by " +each.creator.username}
                 desc={each.textSnippet}
                 key={each._id}
               />
@@ -36,7 +53,7 @@ const Index = () => {
           })}
         </Stack>
       )}
-      {data && !data.posts.more ? (
+      {data && data.posts.more ? (
         <Flex>
           <Button
             m="auto"
@@ -61,4 +78,5 @@ export default withUrqlClient(createUrqlClient, { ssr: true })(Index);
 export type FeatureProps = {
   title: string;
   desc: string;
+  name: string;
 };
