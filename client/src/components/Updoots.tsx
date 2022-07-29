@@ -21,6 +21,9 @@ export const Updoots = (props: Props) => {
     <Flex direction="column" justifyContent="center" alignItems="center" mr={4}>
       <IconButton
         onClick={async () => {
+          if (props.post.voteStatus === 1) {
+            return;
+          }
           setLoadingState("updoot-loading");
           await vote({
             postId: props.post._id,
@@ -31,10 +34,14 @@ export const Updoots = (props: Props) => {
         aria-label="updoots post"
         icon={<ChevronUpIcon />}
         isLoading={loadingState === "updoot-loading"}
+        colorScheme={props.post.voteStatus === 1 ? "green" : undefined}
       />
       {props.post.points}
       <IconButton
         onClick={async () => {
+          if (props.post.voteStatus === -1) {
+            return;
+          }
           setLoadingState("downdoot-loading");
           await vote({
             postId: props.post._id,
@@ -45,6 +52,7 @@ export const Updoots = (props: Props) => {
         aria-label="downdoots post"
         icon={<ChevronDownIcon />}
         isLoading={loadingState === "downdoot-loading"}
+        colorScheme={props.post.voteStatus === -1 ? "red" : undefined}
       />
     </Flex>
   );
