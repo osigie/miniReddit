@@ -216,7 +216,7 @@ __decorate([
 __decorate([
     (0, type_graphql_1.Mutation)(() => String, { nullable: true }),
     (0, type_graphql_1.UseMiddleware)(authentication_1.authentication),
-    __param(0, (0, type_graphql_1.Arg)("id")),
+    __param(0, (0, type_graphql_1.Arg)("id", () => type_graphql_1.Int)),
     __param(1, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Object]),

@@ -13,7 +13,7 @@ import { createUrqlClient } from "../utils/createUrqlClient";
 import { Feature } from "../components/Feature";
 import { useState } from "react";
 import NextLink from "next/link";
-import {Updoots} from "../components/Updoots";
+import { Updoots } from "../components/Updoots";
 
 const Index = () => {
   const [variables, setVariables] = useState({
@@ -47,7 +47,7 @@ const Index = () => {
               <Flex key={each._id} p={5} shadow={"md"} borderWidth="1px">
                 <Updoots post={each} />
                 <Feature
-                id = {each._id}
+                  id={each._id}
                   title={each.title}
                   name={"posted by " + each.creator.username}
                   desc={each.textSnippet}
@@ -79,4 +79,3 @@ const Index = () => {
   );
 };
 export default withUrqlClient(createUrqlClient, { ssr: true })(Index);
-

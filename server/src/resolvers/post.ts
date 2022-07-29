@@ -211,11 +211,14 @@ export class PostResolver {
       await Post.update({ _id: id }, { title: title });
     }
     return post;
+  
   }
+
+  
   @Mutation(() => String, { nullable: true })
   @UseMiddleware(authentication)
   async deletePost(
-    @Arg("id") id: number,
+    @Arg("id", () => Int) id: number,
     @Ctx() { req }: MyContext
   ): Promise<String | null> {
     await Post.delete({ _id: id, creatorId: req.session.userId });
