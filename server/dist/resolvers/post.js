@@ -82,13 +82,18 @@ let PostResolver = class PostResolver {
             return true;
         });
     }
-    posts(limit, cursor) {
+    posts(limit, { req }, cursor) {
         return __awaiter(this, void 0, void 0, function* () {
             const realLimit = Math.min(50, limit);
             const realLimitPlus = realLimit + 1;
             const replacements = [realLimitPlus];
+            if (req.session.userId) {
+                replacements.push(req.session.userId);
+            }
+            let cursorIndx = 3;
             if (cursor) {
                 replacements.push(new Date(parseInt(cursor)));
+                cursorIndx = replacements.length;
             }
             const posts = yield index_1.AppDataSource.query(`SELECT p.*, 
       json_build_object(
@@ -97,10 +102,13 @@ let PostResolver = class PostResolver {
         'email', u.email,
         'createdAt', u."createdAt",
          'updatedAt', u."updatedAt"
-      ) creator
+      ) creator,
+      ${req.session.userId
+                ? '(select vote_point from updoot where "creatorId" = $2 and "postId" = p._id) "voteStatus"'
+                : 'null as "voteStatus"'}
       from post p
       inner join public.user u on u._id = p."creatorId"
-      ${cursor ? `WHERE p."createdAt"   < $2` : ""}
+      ${cursor ? `WHERE p."createdAt"   < $${cursorIndx}` : ""}
       ORDER BY p."createdAt" DESC
       limit $1
       
@@ -111,7 +119,23 @@ let PostResolver = class PostResolver {
         });
     }
     post(id) {
-        return Post_1.Post.findOneBy({ _id: id });
+        return __awaiter(this, void 0, void 0, function* () {
+            const replacement = [id];
+            const post = yield index_1.AppDataSource.query(`
+    SELECT P.*,
+       json_build_object(
+        '_id', u._id,
+        'username', u.username,
+        'email', u.email,
+        'createdAt', u."createdAt",
+         'updatedAt', u."updatedAt"
+      ) creator
+      FROM POST P
+    INNER JOIN public.user u on u._id = p."creatorId"
+ WHERE P._id = $1
+    `, replacement);
+            return post[0];
+        });
     }
     createPost(input, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -159,14 +183,15 @@ __decorate([
 __decorate([
     (0, type_graphql_1.Query)(() => PaginatedPosts),
     __param(0, (0, type_graphql_1.Arg)("limit", () => type_graphql_1.Int, { nullable: true })),
-    __param(1, (0, type_graphql_1.Arg)("cursor", () => String, { nullable: true })),
+    __param(1, (0, type_graphql_1.Ctx)()),
+    __param(2, (0, type_graphql_1.Arg)("cursor", () => String, { nullable: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:paramtypes", [Number, Object, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "posts", null);
 __decorate([
     (0, type_graphql_1.Query)(() => Post_1.Post, { nullable: true }),
-    __param(0, (0, type_graphql_1.Arg)("id")),
+    __param(0, (0, type_graphql_1.Arg)("id", () => type_graphql_1.Int)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)

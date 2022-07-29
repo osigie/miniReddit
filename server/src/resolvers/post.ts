@@ -101,6 +101,7 @@ export class PostResolver {
   @Query(() => PaginatedPosts)
   async posts(
     @Arg("limit", () => Int, { nullable: true }) limit: number,
+    @Ctx() { req }: MyContext,
     @Arg("cursor", () => String, { nullable: true }) cursor: string | null
   ): Promise<PaginatedPosts> {
     const realLimit = Math.min(50, limit);
@@ -108,8 +109,14 @@ export class PostResolver {
 
     const replacements: any[] = [realLimitPlus];
 
+    if (req.session.userId) {
+      replacements.push(req.session.userId);
+    }
+
+    let cursorIndx = 3;
     if (cursor) {
       replacements.push(new Date(parseInt(cursor)));
+      cursorIndx = replacements.length;
     }
     const posts = await AppDataSource.query(
       `SELECT p.*, 
@@ -119,10 +126,15 @@ export class PostResolver {
         'email', u.email,
         'createdAt', u."createdAt",
          'updatedAt', u."updatedAt"
-      ) creator
+      ) creator,
+      ${
+        req.session.userId
+          ? '(select vote_point from updoot where "creatorId" = $2 and "postId" = p._id) "voteStatus"'
+          : 'null as "voteStatus"'
+      }
       from post p
       inner join public.user u on u._id = p."creatorId"
-      ${cursor ? `WHERE p."createdAt"   < $2` : ""}
+      ${cursor ? `WHERE p."createdAt"   < $${cursorIndx}` : ""}
       ORDER BY p."createdAt" DESC
       limit $1
       
@@ -147,8 +159,26 @@ export class PostResolver {
   }
 
   @Query(() => Post, { nullable: true })
-  post(@Arg("id") id: number): Promise<Post | null> {
-    return Post.findOneBy({ _id: id });
+  async post(@Arg("id", () => Int) id: number): Promise<Post | null> {
+    // const post = await Post.findOne({ where: { _id: id } });
+    const replacement = [id];
+    const post = await AppDataSource.query(
+      `
+    SELECT P.*,
+       json_build_object(
+        '_id', u._id,
+        'username', u.username,
+        'email', u.email,
+        'createdAt', u."createdAt",
+         'updatedAt', u."updatedAt"
+      ) creator
+      FROM POST P
+    INNER JOIN public.user u on u._id = p."creatorId"
+ WHERE P._id = $1
+    `,
+      replacement
+    );
+    return post[0];
   }
 
   @Mutation(() => Post, { nullable: true })
