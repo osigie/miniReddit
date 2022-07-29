@@ -108,7 +108,7 @@ export type Query = {
 
 
 export type QueryPostArgs = {
-  id: Scalars['Float'];
+  id: Scalars['Int'];
 };
 
 
@@ -209,6 +209,13 @@ export type PostsQueryVariables = Exact<{
 
 
 export type PostsQuery = { __typename?: 'Query', posts: { __typename?: 'PaginatedPosts', more: boolean, posts: Array<{ __typename?: 'Post', _id: number, createdAt: string, updatedAt: string, title: string, creatorId: number, points: number, textSnippet: string, voteStatus?: number | null, creator: { __typename?: 'User', _id: number, username: string } }> } };
+
+export type PostQueryVariables = Exact<{
+  postId: Scalars['Int'];
+}>;
+
+
+export type PostQuery = { __typename?: 'Query', post?: { __typename?: 'Post', _id: number, createdAt: string, updatedAt: string, title: string, text: string, points: number, voteStatus?: number | null, creator: { __typename?: 'User', _id: number, username: string, email: string } } | null };
 
 export const NormalUserFragmentDoc = gql`
     fragment NormalUser on User {
@@ -355,4 +362,26 @@ export const PostsDocument = gql`
 
 export function usePostsQuery(options?: Omit<Urql.UseQueryArgs<PostsQueryVariables>, 'query'>) {
   return Urql.useQuery<PostsQuery>({ query: PostsDocument, ...options });
+};
+export const PostDocument = gql`
+    query Post($postId: Int!) {
+  post(id: $postId) {
+    _id
+    createdAt
+    updatedAt
+    title
+    creator {
+      _id
+      username
+      email
+    }
+    text
+    points
+    voteStatus
+  }
+}
+    `;
+
+export function usePostQuery(options: Omit<Urql.UseQueryArgs<PostQueryVariables>, 'query'>) {
+  return Urql.useQuery<PostQuery>({ query: PostDocument, ...options });
 };

@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, Flex, Link } from "@chakra-ui/react";
+import { Box, Button, Flex, Heading, Link } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 type Props = {};
 
 export default function Navbar({}: Props) {
-
-  const [shouldFetch, setShouldFetch] = useState(true)
+  const [shouldFetch, setShouldFetch] = useState(true);
   const [{ fetching: isFetching }, logout] = useLogoutMutation();
   const [{ fetching, data }] = useMeQuery({
     pause: shouldFetch,
   });
-   useEffect(() => setShouldFetch(false), []);
+  useEffect(() => setShouldFetch(false), []);
   let body = null;
   if (fetching) {
     //body should be null
@@ -30,12 +29,11 @@ export default function Navbar({}: Props) {
   } else {
     body = (
       <Flex align="center">
-        {/* <NextLink href="/create-post">
-          <Link mr={2}>create post</Link>
-        </NextLink> */}
-        {/* <NextLink href="/profile">
-          <Link mr={2}>Profile</Link>
-        </NextLink> */}
+        <NextLink href="/create-post">
+          <Button as={Link} mr={2}>
+            create post
+          </Button>
+        </NextLink>
         <Box mr={2}>{data.me.username}</Box>
         <Button
           onClick={() => {
@@ -50,8 +48,15 @@ export default function Navbar({}: Props) {
     );
   }
   return (
-    <Flex p={5} bg="tan" position="sticky" top={0} zIndex={1}>
-      <Box ml={"auto"}>{body}</Box>
+    <Flex p={5} bg="tan" position="sticky" top={0} zIndex={1} align="center">
+      <Flex align="center" maxW={800} margin="auto" flex = {1}>
+        <NextLink href="/">
+          <Link mr={2}>
+            <Heading>miniReddit</Heading>
+          </Link>
+        </NextLink>
+        <Box ml={"auto"}>{body}</Box>
+      </Flex>
     </Flex>
   );
 }

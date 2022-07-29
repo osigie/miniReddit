@@ -1,10 +1,14 @@
-query Post($postId: Float!) {
+query Post($postId: Int!) {
   post(id: $postId) {
     _id
     createdAt
     updatedAt
     title
-    creatorId
+    creator {
+      _id
+      username
+      email
+    }
     text
     points
     voteStatus

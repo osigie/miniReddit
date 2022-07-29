@@ -30,12 +30,12 @@ const Index = () => {
   }
   return (
     <Layout variant="large">
-      <Flex>
+      {/* <Flex>
         <Heading>miniReddit</Heading>
         <NextLink href="/create-post">
           <Link ml="auto">create post</Link>
         </NextLink>
-      </Flex>
+      </Flex> */}
 
       <br />
       {!data ? (
@@ -47,6 +47,7 @@ const Index = () => {
               <Flex key={each._id} p={5} shadow={"md"} borderWidth="1px">
                 <Updoots post={each} />
                 <Feature
+                id = {each._id}
                   title={each.title}
                   name={"posted by " + each.creator.username}
                   desc={each.textSnippet}
@@ -79,8 +80,3 @@ const Index = () => {
 };
 export default withUrqlClient(createUrqlClient, { ssr: true })(Index);
 
-export type FeatureProps = {
-  title: string;
-  desc: string;
-  name: string;
-};
