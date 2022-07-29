@@ -213,8 +213,12 @@ export class PostResolver {
     return post;
   }
   @Mutation(() => String, { nullable: true })
-  async deletePost(@Arg("id") id: number): Promise<String | null> {
-    await Post.delete({ _id: id });
+  @UseMiddleware(authentication)
+  async deletePost(
+    @Arg("id") id: number,
+    @Ctx() { req }: MyContext
+  ): Promise<String | null> {
+    await Post.delete({ _id: id, creatorId: req.session.userId });
     return "succesfully deleted";
   }
 }

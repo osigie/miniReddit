@@ -157,9 +157,9 @@ let PostResolver = class PostResolver {
             return post;
         });
     }
-    deletePost(id) {
+    deletePost(id, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield Post_1.Post.delete({ _id: id });
+            yield Post_1.Post.delete({ _id: id, creatorId: req.session.userId });
             return "succesfully deleted";
         });
     }
@@ -215,9 +215,11 @@ __decorate([
 ], PostResolver.prototype, "updatePost", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => String, { nullable: true }),
+    (0, type_graphql_1.UseMiddleware)(authentication_1.authentication),
     __param(0, (0, type_graphql_1.Arg)("id")),
+    __param(1, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "deletePost", null);
 PostResolver = __decorate([
