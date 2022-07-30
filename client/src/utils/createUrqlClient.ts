@@ -1,4 +1,9 @@
-import { cacheExchange, DataField, Resolver } from "@urql/exchange-graphcache";
+import {
+  cacheExchange,
+  DataField,
+  Resolver,
+  Cache,
+} from "@urql/exchange-graphcache";
 import { gql } from "@urql/core";
 import {
   dedupExchange,
@@ -62,6 +67,17 @@ export const simplePagination = (): Resolver<any, any, any> => {
 
 const isServerSide = typeof window === "undefined";
 
+const invalidateAllPost = (cache: Cache) => {
+  const allFields = cache.inspectFields("Query");
+  const fieldInfos = allFields.filter((field) => {
+    return field.fieldName === "posts";
+  });
+
+  fieldInfos.forEach((field) => {
+    cache.invalidate("Query", field.fieldName, field.arguments || {});
+  });
+};
+
 export const createUrqlClient = (ssrExchange: any, ctx: any) => {
   let cookie;
   if (isServerSide) {
@@ -123,18 +139,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
               }
             },
             createPost: (_result, args, cache, info) => {
-              const allFields = cache.inspectFields("Query");
-              const fieldInfos = allFields.filter((field) => {
-                return field.fieldName === "posts";
-              });
-
-              fieldInfos.forEach((field) => {
-                cache.invalidate(
-                  "Query",
-                  field.fieldName,
-                  field.arguments || {}
-                );
-              });
+              invalidateAllPost(cache);
             },
 
             login: (_result, args, cache, info) => {
@@ -152,6 +157,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                   }
                 }
               );
+              invalidateAllPost(cache);
             },
             register: (_result, args, cache, info) => {
               betterQuery<RegisterMutation, MeQuery>(
