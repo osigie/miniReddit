@@ -87,7 +87,6 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
         updates: {
           Mutation: {
             deletePost: (_result, args, cache, info) => {
-              console.log(args.id)
               cache.invalidate({
                 __typename: "Post",
                 id: (args as any).id,

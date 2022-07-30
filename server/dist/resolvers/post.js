@@ -145,20 +145,27 @@ let PostResolver = class PostResolver {
             return yield post.save();
         });
     }
-    updatePost(id, title) {
+    updatePost(id, title, text, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
-            const post = yield Post_1.Post.findOneBy({ _id: id });
-            if (!post) {
-                throw new Error("Post not found");
-            }
-            if (typeof title !== "undefined") {
-                yield Post_1.Post.update({ _id: id }, { title: title });
-            }
-            return post;
+            const userId = req.session.userId;
+            const post = yield index_1.AppDataSource.createQueryBuilder()
+                .update(Post_1.Post)
+                .set({ title, text })
+                .where('_id = :id and "creatorId" = :userId', { id, userId })
+                .returning("*")
+                .execute();
+            return post.raw[0];
         });
     }
     deletePost(id, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
+            const post = yield Post_1.Post.findOne({ where: { _id: id } });
+            if (!post) {
+                return "post not found";
+            }
+            if (post.creatorId !== req.session.userId) {
+                throw new Error("User is not authorized");
+            }
             yield Post_1.Post.delete({ _id: id, creatorId: req.session.userId });
             return "succesfully deleted";
         });
@@ -207,10 +214,13 @@ __decorate([
 ], PostResolver.prototype, "createPost", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => Post_1.Post, { nullable: true }),
-    __param(0, (0, type_graphql_1.Arg)("id")),
+    (0, type_graphql_1.UseMiddleware)(authentication_1.authentication),
+    __param(0, (0, type_graphql_1.Arg)("id", () => type_graphql_1.Int)),
     __param(1, (0, type_graphql_1.Arg)("title", () => String)),
+    __param(2, (0, type_graphql_1.Arg)("text", () => String)),
+    __param(3, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, String]),
+    __metadata("design:paramtypes", [Number, String, String, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "updatePost", null);
 __decorate([

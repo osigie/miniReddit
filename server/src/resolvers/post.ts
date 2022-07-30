@@ -199,28 +199,38 @@ export class PostResolver {
   }
 
   @Mutation(() => Post, { nullable: true })
+  @UseMiddleware(authentication)
   async updatePost(
-    @Arg("id") id: number,
-    @Arg("title", () => String) title: string
+    @Arg("id", () => Int) id: number,
+    @Arg("title", () => String) title: string,
+    @Arg("text", () => String) text: string,
+    @Ctx() { req }: MyContext
   ): Promise<Post | null> {
-    const post = await Post.findOneBy({ _id: id });
-    if (!post) {
-      throw new Error("Post not found");
-    }
-    if (typeof title !== "undefined") {
-      await Post.update({ _id: id }, { title: title });
-    }
-    return post;
-  
+    const userId = req.session.userId;
+    const post = await AppDataSource.createQueryBuilder()
+      .update(Post)
+      .set({ title, text })
+      .where('_id = :id and "creatorId" = :userId', { id, userId })
+      .returning("*")
+      .execute();
+
+    return post.raw[0];
   }
 
-  
   @Mutation(() => String, { nullable: true })
   @UseMiddleware(authentication)
   async deletePost(
     @Arg("id", () => Int) id: number,
     @Ctx() { req }: MyContext
   ): Promise<String | null> {
+    const post = await Post.findOne({ where: { _id: id } });
+    if (!post) {
+      return "post not found";
+    }
+    if (post.creatorId !== req.session.userId) {
+      throw new Error("User is not authorized");
+    }
+
     await Post.delete({ _id: id, creatorId: req.session.userId });
     return "succesfully deleted";
   }
