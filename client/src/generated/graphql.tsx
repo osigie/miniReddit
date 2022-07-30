@@ -232,7 +232,7 @@ export type PostQueryVariables = Exact<{
 }>;
 
 
-export type PostQuery = { __typename?: 'Query', post?: { __typename?: 'Post', _id: number, createdAt: string, updatedAt: string, title: string, text: string, points: number, voteStatus?: number | null, creator: { __typename?: 'User', _id: number, username: string, email: string } } | null };
+export type PostQuery = { __typename?: 'Query', post?: { __typename?: 'Post', _id: number, createdAt: string, updatedAt: string, title: string, creatorId: number, text: string, points: number, voteStatus?: number | null, creator: { __typename?: 'User', _id: number, username: string, email: string } } | null };
 
 export const NormalUserFragmentDoc = gql`
     fragment NormalUser on User {
@@ -416,6 +416,7 @@ export const PostDocument = gql`
       username
       email
     }
+    creatorId
     text
     points
     voteStatus

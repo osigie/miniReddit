@@ -45,6 +45,7 @@ const Index = () => {
                   name={"posted by " + each.creator.username}
                   desc={each.textSnippet}
                   key={each._id}
+                  creatorId = {each.creatorId}
                 />
               </Flex>
             )

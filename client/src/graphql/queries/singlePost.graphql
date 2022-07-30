@@ -8,7 +8,8 @@ query Post($postId: Int!) {
       _id
       username
       email
-    }
+    },
+    creatorId,
     text
     points
     voteStatus
