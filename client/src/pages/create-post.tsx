@@ -12,22 +12,23 @@ import { createUrqlClient } from "../utils/createUrqlClient";
 type Props = {};
 
 const createPost = (props: Props) => {
-   const router = useRouter();
+  const router = useRouter();
   const [, createPost] = useCreatePostMutation();
-  useAuth()
+  useAuth();
   return (
     <Layout variant="small">
       <Formik
         initialValues={{ title: "", text: "" }}
         onSubmit={async (values, { setErrors }) => {
-          const { error,data} = await createPost({ input: values });
+          if (values.title === "" || values.text === "") {
+            return;
+          }
+          const { error, data } = await createPost({ input: values });
           if (!error) {
             router.push("/");
           }
         }}
       >
-
-   
         {({ isSubmitting }) => (
           <Wrapper variant={"small"}>
             <Form>

@@ -30,20 +30,13 @@ const Index = () => {
   }
   return (
     <Layout variant="large">
-      {/* <Flex>
-        <Heading>miniReddit</Heading>
-        <NextLink href="/create-post">
-          <Link ml="auto">create post</Link>
-        </NextLink>
-      </Flex> */}
-
       <br />
       {!data ? (
         <div>Loading....</div>
       ) : (
         <Stack spacing={8} direction="column">
-          {data?.posts.posts?.map((each, i) => {
-            return (
+          {data?.posts.posts?.map((each, i) =>
+            !each ? null : (
               <Flex key={each._id} p={5} shadow={"md"} borderWidth="1px">
                 <Updoots post={each} />
                 <Feature
@@ -54,8 +47,8 @@ const Index = () => {
                   key={each._id}
                 />
               </Flex>
-            );
-          })}
+            )
+          )}
         </Stack>
       )}
       {data && data.posts.more ? (

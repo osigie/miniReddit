@@ -32,7 +32,7 @@ export function Feature({ title, desc, name, id, ...rest }: FeatureProps) {
             deletePost({ deletePostId: Number(id) });
           }}
         ></IconButton>
-        <IconButton aria-label="edit post" icon={<EditIcon />}></IconButton>
+        <IconButton aria-label="edit post" icon={<EditIcon />} ml="10px"></IconButton>
       </Flex>
     </Box>
   );
